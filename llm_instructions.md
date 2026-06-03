@@ -74,6 +74,11 @@ Si se propone una clase productiva, debe proponerse también su suite de tests.
 * `commonTest` — Use Cases, Repositories, Data Sources locales (capas sin dependencia de plataforma).
 * `desktopTest` — ViewModels (requieren `viewModelScope` y `MainDispatcherRule` con `UnconfinedTestDispatcher`).
 ## 7. Flujo de Trabajo y Protocolo de Respuesta
+
+**Paso 0 (solo primera vez):** Antes de implementar cualquier feature, explorar
+`src_ref_movies/` y generar un inventario de patrones, convenciones y decisiones
+arquitectónicas. No escribir código hasta que el inventario esté aprobado.
+
 Cuando se solicite implementar una funcionalidad, debes seguir estrictamente este orden. No saltar capas. No asumir código existente. Preguntar únicamente cuando falte información imprescindible.
 1. Mostrar primero la estructura de archivos afectada.
 2. Implementar `domain` completo (Modelos e Interfaces).
