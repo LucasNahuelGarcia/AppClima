@@ -133,3 +133,6 @@ Drop caveman temporarily for: security warnings, irreversible action confirmatio
 **Permitido:** leer para extraer patrones, convenciones y decisiones arquitectónicas.
 
 Todo código nuevo va exclusivamente en `src/`.
+
+## 10. Chat output
+File trees output as plain text code blocks, never as links
