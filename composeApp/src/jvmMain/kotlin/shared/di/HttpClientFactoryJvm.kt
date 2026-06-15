@@ -1,4 +1,4 @@
-@file:JvmName("DesktopHttpClientFactory")
+@file:JvmName("JvmHttpClientFactory")
 
 package shared.di
 
