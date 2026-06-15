@@ -22,12 +22,12 @@ class NasaApodRemoteDataSourceTest {
             respond(
                 content = """
                 {
-                  \"title\": \"Milky Way\",
-                  \"date\": \"2026-06-02\",
-                  \"explanation\": \"Night sky view\",
-                  \"media_type\": \"image\",
-                  \"url\": \"https://example.com/apod.jpg\",
-                  \"hdurl\": \"https://example.com/apod_hd.jpg\"
+                                    "title": "Milky Way",
+                                    "date": "2026-06-02",
+                                    "explanation": "Night sky view",
+                                    "media_type": "image",
+                                    "url": "https://example.com/apod.jpg",
+                                    "hdurl": "https://example.com/apod_hd.jpg"
                 }
                 """.trimIndent(),
                 status = HttpStatusCode.OK,

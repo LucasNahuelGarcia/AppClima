@@ -12,7 +12,7 @@ class NasaApodRemoteDataSource(
 ) : AstronomyRemoteDataSource {
 
     override suspend fun getAstronomyData(): NasaApodDto {
-        return client.get("/planetary/apod") {
+        return client.get("https://api.nasa.gov/planetary/apod") {
             parameter("api_key", apiKeyProvider())
         }.body()
     }

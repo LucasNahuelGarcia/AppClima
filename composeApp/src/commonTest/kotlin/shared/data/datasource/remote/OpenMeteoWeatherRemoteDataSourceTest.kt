@@ -27,13 +27,13 @@ class OpenMeteoWeatherRemoteDataSourceTest {
             respond(
                 content = """
                 {
-                  \"latitude\": -38.7167,
-                  \"longitude\": -62.2833,
-                  \"current\": {
-                    \"time\": \"2026-06-02T12:00:00Z\",
-                    \"temperature_2m\": 18.4,
-                    \"wind_speed_10m\": 12.5,
-                    \"weather_code\": 3
+                                    "latitude": -38.7167,
+                                    "longitude": -62.2833,
+                                    "current": {
+                                        "time": "2026-06-02T12:00:00Z",
+                                        "temperature_2m": 18.4,
+                                        "wind_speed_10m": 12.5,
+                                        "weather_code": 3
                   }
                 }
                 """.trimIndent(),

@@ -43,11 +43,34 @@ fun DashboardScreen(
 
     MaterialTheme {
         Surface(modifier = modifier.fillMaxSize()) {
-            when (val uiState = state) {
-                UiState.Loading -> LoadingView()
-                is UiState.Error -> ErrorView(uiState.message) { viewModel.retry() }
-                is UiState.Success -> DashboardContent(uiState.data)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                CoordinatesBanner(coordinates)
+                when (val uiState = state) {
+                    UiState.Loading -> LoadingView()
+                    is UiState.Error -> ErrorView(uiState.message) { viewModel.retry() }
+                    is UiState.Success<*> -> DashboardContent(uiState.data as DashboardData)
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun CoordinatesBanner(coordinates: GeoCoordinates) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(text = "Coordenadas", style = MaterialTheme.typography.titleMedium)
+            Text(text = "Latitud: ${coordinates.latitude}")
+            Text(text = "Longitud: ${coordinates.longitude}")
         }
     }
 }
@@ -55,7 +78,9 @@ fun DashboardScreen(
 @Composable
 private fun LoadingView() {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -66,16 +91,13 @@ private fun LoadingView() {
 @Composable
 private fun ErrorView(message: String, onRetry: () -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(text = message, style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = onRetry) {
-            Text(text = "Retry")
+            Text(text = "Reintentar")
         }
     }
 }
@@ -83,41 +105,43 @@ private fun ErrorView(message: String, onRetry: () -> Unit) {
 @Composable
 private fun DashboardContent(data: DashboardData) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        WeatherSection(data.weather)
-        AstronomySection(data.astronomy)
+        WeatherCard(data.weather)
+        AstronomyCard(data.astronomy)
     }
 }
 
 @Composable
-private fun WeatherSection(weather: WeatherData) {
+private fun WeatherCard(weather: WeatherData) {
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(text = "Weather", style = MaterialTheme.typography.titleMedium)
-            Text(text = "Temp (C): ${weather.temperatureCelsius}")
-            Text(text = "Wind (km/h): ${weather.windSpeedKmh}")
-            Text(text = "Code: ${weather.weatherCode}")
-            Text(text = "Time: ${weather.timeIso}")
-            Text(text = "Lat: ${weather.coordinates.latitude}, Lon: ${weather.coordinates.longitude}")
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text = "Clima", style = MaterialTheme.typography.titleMedium)
+            Text(text = "Temperatura: ${weather.temperatureCelsius} °C")
+            Text(text = "Viento: ${weather.windSpeedKmh} km/h")
+            Text(text = "Código meteorológico: ${weather.weatherCode}")
+            Text(text = "Hora: ${weather.timeIso}")
         }
     }
 }
 
 @Composable
-private fun AstronomySection(astronomy: AstronomyData) {
+private fun AstronomyCard(astronomy: AstronomyData) {
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(text = "Astronomy", style = MaterialTheme.typography.titleMedium)
-            Text(text = "Title: ${astronomy.title}")
-            Text(text = "Date: ${astronomy.date}")
-            Text(text = "Media: ${astronomy.mediaType}")
-            Text(text = "Url: ${astronomy.url}")
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text = "Astronomía", style = MaterialTheme.typography.titleMedium)
+            Text(text = astronomy.title)
+            Text(text = "Tipo de media: ${astronomy.mediaType}")
+            Text(text = "Fecha: ${astronomy.date}")
             Text(text = astronomy.explanation)
+            Text(text = "URL: ${astronomy.url}")
         }
     }
 }
