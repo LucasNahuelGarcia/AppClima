@@ -32,6 +32,7 @@ fabric.properties
 /composeApp/build/
 /.gradle/
 local.properties
+.env
 
 # Claude Code
 .claude/
