@@ -31,7 +31,6 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 /composeApp/build/
 /.gradle/
-local.properties
 
 # Claude Code
 .claude/
