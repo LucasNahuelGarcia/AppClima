@@ -11,6 +11,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation("media.kamel:kamel-image:0.9.5")
+                implementation(compose.materialIconsExtended)
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
