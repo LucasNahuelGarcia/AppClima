@@ -1,5 +1,12 @@
 package shared.presentation.screen
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -13,15 +20,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dydsproject.composeapp.generated.resources.Res
+import dydsproject.composeapp.generated.resources.dia_despejado
+import dydsproject.composeapp.generated.resources.dia_lluvioso
+import dydsproject.composeapp.generated.resources.dia_nublado
+import dydsproject.composeapp.generated.resources.noche_despejado
+import dydsproject.composeapp.generated.resources.noche_lluvioso
+import dydsproject.composeapp.generated.resources.noche_nublado
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import shared.domain.model.*
 import shared.presentation.state.UiState
 import shared.presentation.viewmodel.DashboardViewModel
+
+private val DashboardDarkGreen = Color(0xFF08241C)
 
 @Composable
 fun DashboardScreen(
@@ -31,9 +51,12 @@ fun DashboardScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val locationState by viewModel.locationState.collectAsState()
-
-    // TODO: SERVICIO INVENTADO. Conectar a un LocalTime.now() real del sistema o al backend.
-    val isNightTime = remember { true }
+    val currentWeather = (state as? UiState.Success<DashboardData>)?.data?.weather
+    val isNightTime = currentWeather?.isNight ?: false
+    val backgroundResource = weatherBackgroundResource(
+        weatherCode = currentWeather?.weatherCode,
+        isNight = isNightTime
+    )
 
     LaunchedEffect(coordinates) {
         viewModel.loadDashboard(coordinates)
@@ -42,55 +65,121 @@ fun DashboardScreen(
     MaterialTheme(
         colorScheme = if (isNightTime) darkColorScheme() else lightColorScheme()
     ) {
-        Surface(
-            modifier = modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+        BoxWithConstraints(
+            modifier = modifier
+                .fillMaxSize()
+                .background(DashboardDarkGreen)
         ) {
+            val viewportHeight = maxHeight
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
-
-                when (val uiState = state) {
-                    UiState.Loading -> LoadingView()
-                    is UiState.Error -> ErrorView(uiState.message) { viewModel.retry() }
-                    is UiState.Success<*> -> DashboardContent(
-                        data = uiState.data as DashboardData,
-                        locationState = locationState
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(viewportHeight)
+                ) {
+                    AnimatedWeatherBackground(backgroundResource)
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(Color.Black.copy(alpha = 0.28f))
                     )
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            // 1. Agregamos un margen inferior de 24.dp para que la tarjeta no pise el borde de la pantalla.
+                            .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+
+                        // 2. ESTA ES LA MAGIA: Un expansor que se come todo el espacio libre de arriba.
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        when (val uiState = state) {
+                            UiState.Loading -> LoadingView()
+                            is UiState.Error -> ErrorView(uiState.message) { viewModel.retry() }
+                            is UiState.Success<*> -> {
+                                val data = uiState.data as DashboardData
+                                HeroWeatherCard(
+                                    weather = data.weather,
+                                    locationName = locationState.locationNameOrFallback(data.weather.locationName)
+                                        .substringBefore(",")
+                                        .trim()
+                                )
+                            }
+                        }
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                when (val uiState = state) {
+                    is UiState.Success<*> -> DashboardDetails(uiState.data as DashboardData)
+                    else -> Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp)
+                            .background(DashboardDarkGreen)
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun DashboardContent(
-    data: DashboardData,
-    locationState: UiState<LocationData>
-) {
+private fun DashboardDetails(data: DashboardData) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(DashboardDarkGreen)
+            .padding(horizontal = 16.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        // Bloque superior: Hero clima animado.
-        HeroWeatherCard(
-            weather = data.weather,
-            locationName = locationState.locationNameOrFallback(data.weather.locationName)
-        )
-
-        // Bloque intermedio: Pronóstico horizontal.
         TodayForecastSection(data.weather.hourlyForecast)
-
-        // Bloque inferior: Tarjeta lunar.
         MoonPhaseCard(data.astronomy.moonPhase)
     }
+}
+
+@Composable
+private fun AnimatedWeatherBackground(backgroundResource: DrawableResource) {
+    val transition = rememberInfiniteTransition(label = "weather-background")
+    val scale by transition.animateFloat(
+        initialValue = 1.04f,
+        targetValue = 1.12f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 9000),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "weather-background-scale"
+    )
+    val drift by transition.animateFloat(
+        initialValue = -18f,
+        targetValue = 18f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 11000),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "weather-background-drift"
+    )
+
+    Image(
+        painter = painterResource(backgroundResource),
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                translationX = drift
+                translationY = -drift
+            }
+    )
 }
 
 @Composable
@@ -105,8 +194,11 @@ private fun LoadingView() {
         CircularProgressIndicator()
         Text(
             text = "Consultando satélites...",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.displayLarge.copy(
+                fontSize = 68.sp,
+                fontWeight = FontWeight.Black
+            ),
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -221,6 +313,44 @@ private fun UiState<LocationData>.locationNameOrFallback(fallback: String): Stri
         is UiState.Error -> fallback
         is UiState.Success -> data.displayName.ifBlank { fallback }
     }
+}
+
+private fun weatherBackgroundResource(
+    weatherCode: Int?,
+    isNight: Boolean
+): DrawableResource {
+    return when (weatherBackgroundType(weatherCode)) {
+        WeatherBackgroundType.Clear -> if (isNight) {
+            Res.drawable.noche_despejado
+        } else {
+            Res.drawable.dia_despejado
+        }
+        WeatherBackgroundType.Cloudy -> if (isNight) {
+            Res.drawable.noche_nublado
+        } else {
+            Res.drawable.dia_nublado
+        }
+        WeatherBackgroundType.Rainy -> if (isNight) {
+            Res.drawable.noche_lluvioso
+        } else {
+            Res.drawable.dia_lluvioso
+        }
+    }
+}
+
+private fun weatherBackgroundType(weatherCode: Int?): WeatherBackgroundType {
+    return when (weatherCode) {
+        0 -> WeatherBackgroundType.Clear
+        1, 2, 3, 45, 48 -> WeatherBackgroundType.Cloudy
+        in 51..67, in 71..77, in 80..82, in 85..86, in 95..99 -> WeatherBackgroundType.Rainy
+        else -> WeatherBackgroundType.Cloudy
+    }
+}
+
+private enum class WeatherBackgroundType {
+    Clear,
+    Cloudy,
+    Rainy
 }
 
 @Composable
