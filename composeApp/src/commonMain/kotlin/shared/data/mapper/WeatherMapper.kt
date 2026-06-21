@@ -7,8 +7,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import shared.data.dto.OpenMeteoHourlyDto
 import shared.data.dto.OpenMeteoWeatherDto
+import shared.domain.model.DayNight
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.HourlyForecast
+import shared.domain.model.WeatherCondition
 import shared.domain.model.WeatherData
 
 fun OpenMeteoWeatherDto.toDomainModel(nowProvider: () -> Instant = { Clock.System.now() }): WeatherData {
@@ -17,7 +19,8 @@ fun OpenMeteoWeatherDto.toDomainModel(nowProvider: () -> Instant = { Clock.Syste
         coordinates = GeoCoordinates(latitude = latitude, longitude = longitude),
         temperatureCelsius = current.temperatureCelsius,
         windSpeedKmh = current.windSpeedKmh,
-        weatherCode = current.weatherCode,
+        condition = current.weatherCode.toWeatherCondition(),
+        dayNight = current.isDay.toDayNight(),
         hourlyForecast = hourly.toDomainModel(now)
     )
 }
@@ -35,7 +38,7 @@ private fun OpenMeteoHourlyDto.toDomainModel(now: Instant): List<HourlyForecast>
         HourlyForecast(
             time = hourlyDateTime.hour.toString().padStart(2, '0') + ":00",
             temperatureCelsius = temperatureCelsius[index].roundToInt(),
-            weatherCode = weatherCode[index]
+            condition = weatherCode[index].toWeatherCondition()
         )
     }
 }

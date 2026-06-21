@@ -16,7 +16,8 @@ data class OpenMeteoCurrentDto(
     @SerialName("time") val time: String,
     @SerialName("temperature_2m") val temperatureCelsius: Double,
     @SerialName("wind_speed_10m") val windSpeedKmh: Double,
-    @SerialName("weather_code") val weatherCode: Int
+    @SerialName("weather_code") val weatherCode: Int,
+    @SerialName("is_day") val isDay: Int = 1
 )
 
 @Serializable

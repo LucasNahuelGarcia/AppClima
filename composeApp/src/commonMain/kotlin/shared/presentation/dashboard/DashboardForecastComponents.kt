@@ -1,5 +1,6 @@
 package shared.presentation.dashboard
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.painterResource
 import shared.domain.model.HourlyForecast
 
 @Composable
@@ -70,10 +73,11 @@ private fun DashboardHourlyCardItem(item: HourlyForecast) {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = weatherSymbol(item.weatherCode),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                Image(
+                    painter = painterResource(dashboardHourlyWeatherIconResource(item.condition)),
+                    contentDescription = "null",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
@@ -83,14 +87,5 @@ private fun DashboardHourlyCardItem(item: HourlyForecast) {
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
-
-private fun weatherSymbol(weatherCode: Int): String {
-    return when (weatherCode) {
-        0 -> "☀"
-        1, 2, 3, 45, 48 -> "☁"
-        in 51..67, in 71..77, in 80..82, in 85..86, in 95..99 -> "☂"
-        else -> "☁"
     }
 }

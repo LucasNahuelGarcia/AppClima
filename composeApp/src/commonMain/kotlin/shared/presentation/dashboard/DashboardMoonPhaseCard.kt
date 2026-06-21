@@ -1,5 +1,6 @@
 package shared.presentation.dashboard
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,9 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
+import org.jetbrains.compose.resources.painterResource
 import shared.domain.model.MoonPhaseData
 
 @Composable
@@ -33,9 +34,10 @@ internal fun DashboardMoonPhaseCard(moonPhase: MoonPhaseData) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            KamelImage(
-                resource = asyncPainterResource(data = moonPhase.iconUrl),
-                contentDescription = "Fase de la luna: ${moonPhase.phaseName}",
+            Image(
+                painter = painterResource(dashboardMoonPhaseIconResource(moonPhase.phase)),
+                contentDescription = "Fase de la luna: ${moonPhase.phase.displayName}",
+                contentScale = ContentScale.Fit,
                 modifier = Modifier.size(54.dp)
             )
 
@@ -46,7 +48,7 @@ internal fun DashboardMoonPhaseCard(moonPhase: MoonPhaseData) {
                     color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = moonPhase.phaseName,
+                    text = moonPhase.phase.displayName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSecondaryContainer

@@ -1,6 +1,7 @@
 package shared.presentation.dashboard
 
 import shared.domain.model.DashboardData
+import shared.domain.model.DayNight
 import shared.domain.model.HourlyForecast
 import shared.domain.model.LocationData
 import shared.domain.model.MoonPhaseData
@@ -22,15 +23,9 @@ internal sealed interface DashboardUiState {
 internal data class DashboardPresentation(
     val weather: WeatherData,
     val locationName: String,
-    val themeMode: DashboardThemeMode,
     val hourlyForecast: List<HourlyForecast>,
     val moonPhase: MoonPhaseData
 )
-
-internal enum class DashboardThemeMode {
-    Day,
-    Night
-}
 
 internal fun UiState<DashboardData>.toDashboardUiState(
     locationState: UiState<LocationData>
@@ -44,11 +39,6 @@ internal fun UiState<DashboardData>.toDashboardUiState(
                 presentation = DashboardPresentation(
                     weather = weather,
                     locationName = locationState.locationNameOrFallback(weather.locationName),
-                    themeMode = if (weather.isNight) {
-                        DashboardThemeMode.Night
-                    } else {
-                        DashboardThemeMode.Day
-                    },
                     hourlyForecast = weather.hourlyForecast,
                     moonPhase = data.astronomy.moonPhase
                 )

@@ -5,6 +5,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import shared.domain.model.DayNight
 
 private val DashboardDayScheme = lightColorScheme(
     primary = Color(0xFF557A3E),
@@ -59,11 +60,11 @@ private val DashboardNightScheme = darkColorScheme(
 )
 @Composable
 internal fun DashboardTheme(
-    themeMode: DashboardThemeMode,
+    themeMode: DayNight,
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = if (themeMode == DashboardThemeMode.Night) {
+        colorScheme = if (themeMode == DayNight.Night) {
             DashboardNightScheme
         } else {
             DashboardDayScheme

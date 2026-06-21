@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
+import shared.domain.model.DayNight
 import shared.presentation.state.UiState
 
 @Composable
@@ -21,7 +22,7 @@ internal fun DashboardRoute(
     }
 
     val dashboardUiState = state.toDashboardUiState(locationState)
-    val themeMode = dashboardUiState.themeMode()
+    val themeMode = dashboardUiState.dayNight()
 
     DashboardTheme(themeMode = themeMode) {
         DashboardTemplate(
@@ -32,10 +33,10 @@ internal fun DashboardRoute(
     }
 }
 
-private fun DashboardUiState.themeMode(): DashboardThemeMode {
+private fun DashboardUiState.dayNight(): DayNight {
     return when (this) {
-        DashboardUiState.Loading -> DashboardThemeMode.Day
-        is DashboardUiState.Error -> DashboardThemeMode.Day
-        is DashboardUiState.Content -> presentation.themeMode
+        DashboardUiState.Loading -> DayNight.Day
+        is DashboardUiState.Error -> DayNight.Day
+        is DashboardUiState.Content -> presentation.weather.dayNight
     }
 }

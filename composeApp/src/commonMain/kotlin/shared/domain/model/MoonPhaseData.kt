@@ -3,19 +3,17 @@ package shared.domain.model
 data class HourlyForecast(
     val time: String,
     val temperatureCelsius: Int,
-    val weatherCode: Int
+    val condition: WeatherCondition
 )
 
 data class MoonPhaseData(
-    val phaseName: String,
+    val phase: MoonPhase,
     val illuminationPercent: Int,
-    val iconUrl: String
 ) {
     companion object {
         val Unknown = MoonPhaseData(
-            phaseName = "Sin datos",
-            illuminationPercent = 0,
-            iconUrl = ""
+            phase = MoonPhase.Unknown,
+            illuminationPercent = 0
         )
     }
 }

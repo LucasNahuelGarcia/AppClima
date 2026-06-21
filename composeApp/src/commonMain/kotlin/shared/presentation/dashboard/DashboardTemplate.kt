@@ -14,14 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dydsproject.composeapp.generated.resources.Res
-import dydsproject.composeapp.generated.resources.dia_despejado
-import dydsproject.composeapp.generated.resources.dia_lluvioso
-import dydsproject.composeapp.generated.resources.dia_nublado
-import dydsproject.composeapp.generated.resources.noche_despejado
-import dydsproject.composeapp.generated.resources.noche_lluvioso
-import dydsproject.composeapp.generated.resources.noche_nublado
-import org.jetbrains.compose.resources.DrawableResource
 
 @Composable
 internal fun DashboardTemplate(
@@ -67,45 +59,4 @@ internal fun DashboardTemplate(
             }
         }
     }
-}
-
-private fun dashboardBackgroundResource(
-    presentation: DashboardPresentation?
-): DrawableResource {
-    if (presentation == null) {
-        return Res.drawable.dia_despejado
-    }
-
-    return when (weatherBackgroundType(presentation.weather.weatherCode)) {
-        WeatherBackgroundType.Clear -> if (presentation.themeMode == DashboardThemeMode.Night) {
-            Res.drawable.noche_despejado
-        } else {
-            Res.drawable.dia_despejado
-        }
-        WeatherBackgroundType.Cloudy -> if (presentation.themeMode == DashboardThemeMode.Night) {
-            Res.drawable.noche_nublado
-        } else {
-            Res.drawable.dia_nublado
-        }
-        WeatherBackgroundType.Rainy -> if (presentation.themeMode == DashboardThemeMode.Night) {
-            Res.drawable.noche_lluvioso
-        } else {
-            Res.drawable.dia_lluvioso
-        }
-    }
-}
-
-private fun weatherBackgroundType(weatherCode: Int?): WeatherBackgroundType {
-    return when (weatherCode) {
-        0 -> WeatherBackgroundType.Clear
-        1, 2, 3, 45, 48 -> WeatherBackgroundType.Cloudy
-        in 51..67, in 71..77, in 80..82, in 85..86, in 95..99 -> WeatherBackgroundType.Rainy
-        else -> WeatherBackgroundType.Cloudy
-    }
-}
-
-private enum class WeatherBackgroundType {
-    Clear,
-    Cloudy,
-    Rainy
 }

@@ -4,9 +4,9 @@ data class WeatherData(
     val coordinates: GeoCoordinates,
     val temperatureCelsius: Double,
     val windSpeedKmh: Double,
-    val weatherCode: Int,
+    val condition: WeatherCondition,
+    val dayNight: DayNight,
     val locationName: String = "${coordinates.latitude}, ${coordinates.longitude}",
     val weatherAnimUrl: String = "",
-    val hourlyForecast: List<HourlyForecast> = emptyList(),
-    val isNight: Boolean = false
+    val hourlyForecast: List<HourlyForecast> = emptyList()
 )
