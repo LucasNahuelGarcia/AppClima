@@ -31,12 +31,12 @@ internal fun DashboardBackground(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.05f),
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.05f),
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.06f),
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.06f),
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.06f),
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.06f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0f),
                             MaterialTheme.colorScheme.background.copy(alpha = 1f),
                             MaterialTheme.colorScheme.background.copy(alpha = 1f),
                             MaterialTheme.colorScheme.background.copy(alpha = 1f)
