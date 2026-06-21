@@ -4,8 +4,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.datetime.Instant
 import shared.data.dto.OpenMeteoCurrentDto
+import shared.data.dto.OpenMeteoHourlyDto
 import shared.data.dto.OpenMeteoWeatherDto
 import shared.domain.model.GeoCoordinates
+import shared.domain.model.HourlyForecast
 
 class WeatherMapperTest {
 
@@ -19,6 +21,15 @@ class WeatherMapperTest {
                 temperatureCelsius = 18.4,
                 windSpeedKmh = 12.5,
                 weatherCode = 3
+            ),
+            hourly = OpenMeteoHourlyDto(
+                time = listOf(
+                    "2026-06-21T11:00:00Z",
+                    "2026-06-21T12:00:00Z",
+                    "2026-06-21T13:00:00Z"
+                ),
+                temperatureCelsius = listOf(17.2, 18.0, 19.1),
+                weatherCode = listOf(1, 2, 3)
             )
         )
 
@@ -29,5 +40,12 @@ class WeatherMapperTest {
         assertEquals(12.5, result.windSpeedKmh)
         assertEquals(3, result.weatherCode)
         assertEquals("2026-06-21T12:34:56Z", result.timeIso)
+        assertEquals(
+            listOf(
+                HourlyForecast(time = "12:00", temperatureCelsius = 18, weatherCode = 2),
+                HourlyForecast(time = "13:00", temperatureCelsius = 19, weatherCode = 3)
+            ),
+            result.hourlyForecast
+        )
     }
 }

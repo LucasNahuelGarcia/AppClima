@@ -3,7 +3,7 @@ package shared.domain.model
 data class HourlyForecast(
     val time: String,
     val temperatureCelsius: Int,
-    val iconUrl: String
+    val weatherCode: Int
 )
 
 data class MoonPhaseData(

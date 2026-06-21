@@ -4,9 +4,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import shared.data.dto.OpenMeteoCurrentDto
+import shared.data.dto.OpenMeteoHourlyDto
 import shared.data.dto.OpenMeteoWeatherDto
 import shared.domain.model.GeoCoordinates
+import shared.domain.model.HourlyForecast
 import shared.domain.model.WeatherData
 import shared.fake.FakeWeatherRemoteDataSource
 
@@ -23,10 +26,18 @@ class WeatherRepositoryImplSuccessTest {
                 temperatureCelsius = 18.4,
                 windSpeedKmh = 12.5,
                 weatherCode = 3
+            ),
+            hourly = OpenMeteoHourlyDto(
+                time = listOf(
+                    "2026-06-21T12:00:00Z",
+                    "2026-06-21T13:00:00Z"
+                ),
+                temperatureCelsius = listOf(18.0, 19.1),
+                weatherCode = listOf(2, 3)
             )
         )
         val remote = FakeWeatherRemoteDataSource(dtoToReturn = dto)
-        val repository = WeatherRepositoryImpl(remote)
+        val repository = WeatherRepositoryImpl(remote) { Instant.parse("2026-06-21T12:34:56Z") }
 
         val result = repository.getCurrentWeather(coordinates)
 
@@ -37,7 +48,11 @@ class WeatherRepositoryImplSuccessTest {
                 temperatureCelsius = 18.4,
                 windSpeedKmh = 12.5,
                 weatherCode = 3,
-                timeIso = "2026-06-02T12:00:00Z"
+                timeIso = "2026-06-21T12:34:56Z",
+                hourlyForecast = listOf(
+                    HourlyForecast(time = "12:00", temperatureCelsius = 18, weatherCode = 2),
+                    HourlyForecast(time = "13:00", temperatureCelsius = 19, weatherCode = 3)
+                )
             ),
             result.getOrThrow()
         )

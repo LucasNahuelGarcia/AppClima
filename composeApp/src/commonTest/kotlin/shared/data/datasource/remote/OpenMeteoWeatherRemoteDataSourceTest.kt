@@ -22,6 +22,8 @@ class OpenMeteoWeatherRemoteDataSourceTest {
             assertEquals(coordinates.latitude.toString(), request.url.parameters["latitude"])
             assertEquals(coordinates.longitude.toString(), request.url.parameters["longitude"])
             assertEquals("temperature_2m,weather_code,wind_speed_10m", request.url.parameters["current"])
+            assertEquals("temperature_2m,weather_code", request.url.parameters["hourly"])
+            assertEquals("1", request.url.parameters["forecast_days"])
             assertEquals("UTC", request.url.parameters["timezone"])
 
             respond(
@@ -34,6 +36,11 @@ class OpenMeteoWeatherRemoteDataSourceTest {
                                         "temperature_2m": 18.4,
                                         "wind_speed_10m": 12.5,
                                         "weather_code": 3
+                                    },
+                                    "hourly": {
+                                        "time": ["2026-06-02T12:00:00Z", "2026-06-02T13:00:00Z"],
+                                        "temperature_2m": [18.4, 19.1],
+                                        "weather_code": [3, 2]
                   }
                 }
                 """.trimIndent(),
@@ -55,5 +62,8 @@ class OpenMeteoWeatherRemoteDataSourceTest {
         assertEquals(18.4, result.current.temperatureCelsius)
         assertEquals(12.5, result.current.windSpeedKmh)
         assertEquals(3, result.current.weatherCode)
+        assertEquals(listOf("2026-06-02T12:00:00Z", "2026-06-02T13:00:00Z"), result.hourly.time)
+        assertEquals(listOf(18.4, 19.1), result.hourly.temperatureCelsius)
+        assertEquals(listOf(3, 2), result.hourly.weatherCode)
     }
 }

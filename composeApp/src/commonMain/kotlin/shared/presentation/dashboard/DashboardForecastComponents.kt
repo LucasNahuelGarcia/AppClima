@@ -1,6 +1,8 @@
 package shared.presentation.dashboard
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,8 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import shared.domain.model.HourlyForecast
 
 @Composable
@@ -28,7 +29,7 @@ internal fun DashboardTodayForecastSection(forecasts: List<HourlyForecast>) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Pronostico hoy:",
+            text = "Hoy:",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -60,11 +61,21 @@ private fun DashboardHourlyCardItem(item: HourlyForecast) {
         ) {
             Text(text = item.time, style = MaterialTheme.typography.labelSmall)
 
-            KamelImage(
-                resource = asyncPainterResource(data = item.iconUrl),
-                contentDescription = "Clima a las ${item.time}",
-                modifier = Modifier.size(32.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = RoundedCornerShape(10.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = weatherSymbol(item.weatherCode),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
 
             Text(
                 text = "${item.temperatureCelsius}°",
@@ -72,5 +83,14 @@ private fun DashboardHourlyCardItem(item: HourlyForecast) {
                 fontWeight = FontWeight.Bold
             )
         }
+    }
+}
+
+private fun weatherSymbol(weatherCode: Int): String {
+    return when (weatherCode) {
+        0 -> "☀"
+        1, 2, 3, 45, 48 -> "☁"
+        in 51..67, in 71..77, in 80..82, in 85..86, in 95..99 -> "☂"
+        else -> "☁"
     }
 }

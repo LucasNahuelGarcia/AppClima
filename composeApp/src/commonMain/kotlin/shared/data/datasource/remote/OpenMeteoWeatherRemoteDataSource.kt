@@ -16,6 +16,8 @@ class OpenMeteoWeatherRemoteDataSource(
             parameter("latitude", coordinates.latitude)
             parameter("longitude", coordinates.longitude)
             parameter("current", "temperature_2m,weather_code,wind_speed_10m")
+            parameter("hourly", "temperature_2m,weather_code")
+            parameter("forecast_days", 1)
             parameter("timezone", "UTC")
         }.body()
     }
