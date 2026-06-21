@@ -52,7 +52,7 @@ internal fun DashboardHeroWeatherCard(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "$locationName  •  ${weather.formattedDate}",
+                    text = "$locationName",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -82,23 +82,6 @@ internal fun DashboardHeroWeatherCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-            }
-
-            Box(
-                modifier = Modifier
-                    .size(110.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                KamelImage(
-                    resource = asyncPainterResource(data = weather.weatherAnimUrl),
-                    contentDescription = "Animacion del clima en tiempo real",
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                    modifier = Modifier.fillMaxWidth(),
-                    onFailure = {
-                        Text("GIF Clima", style = MaterialTheme.typography.labelSmall)
-                    }
-                )
             }
         }
     }

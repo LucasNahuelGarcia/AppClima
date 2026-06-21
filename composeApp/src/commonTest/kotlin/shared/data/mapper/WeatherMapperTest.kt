@@ -2,6 +2,7 @@ package shared.data.mapper
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.datetime.Instant
 import shared.data.dto.OpenMeteoCurrentDto
 import shared.data.dto.OpenMeteoWeatherDto
 import shared.domain.model.GeoCoordinates
@@ -21,12 +22,12 @@ class WeatherMapperTest {
             )
         )
 
-        val result = dto.toDomainModel()
+        val result = dto.toDomainModel { Instant.parse("2026-06-21T12:34:56Z") }
 
         assertEquals(GeoCoordinates(-38.7167, -62.2833), result.coordinates)
         assertEquals(18.4, result.temperatureCelsius)
         assertEquals(12.5, result.windSpeedKmh)
         assertEquals(3, result.weatherCode)
-        assertEquals("2026-06-02T12:00:00Z", result.timeIso)
+        assertEquals("2026-06-21T12:34:56Z", result.timeIso)
     }
 }
