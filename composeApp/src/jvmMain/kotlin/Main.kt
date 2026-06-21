@@ -10,6 +10,9 @@ fun main() {
     }.koin
 
     singleWindowApplication(title = "Dashboard Clima y Astronomía") {
-        App(dashboardViewModel = koin.get())
+        App(
+            dashboardViewModel = koin.get(),
+            getDeviceLocationUseCase = koin.get()
+        )
     }
 }
