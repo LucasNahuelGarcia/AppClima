@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -21,8 +22,6 @@ import dydsproject.composeapp.generated.resources.noche_despejado
 import dydsproject.composeapp.generated.resources.noche_lluvioso
 import dydsproject.composeapp.generated.resources.noche_nublado
 import org.jetbrains.compose.resources.DrawableResource
-
-private val DashboardBaseBackground = androidx.compose.ui.graphics.Color(0xFF08241C)
 
 @Composable
 internal fun DashboardTemplate(
@@ -36,7 +35,7 @@ internal fun DashboardTemplate(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(DashboardBaseBackground)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         val viewportHeight = maxHeight
 
@@ -62,7 +61,7 @@ internal fun DashboardTemplate(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(24.dp)
-                            .background(DashboardBaseBackground)
+                            .background(MaterialTheme.colorScheme.background)
                     )
                 }
             }

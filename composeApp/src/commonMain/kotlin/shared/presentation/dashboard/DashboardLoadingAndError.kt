@@ -36,14 +36,14 @@ internal fun DashboardLoadingView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CircularProgressIndicator(color = Color.White)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
             Text(
                 text = "Consultando",
                 style = MaterialTheme.typography.displayLarge.copy(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Black
                 ),
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -70,7 +70,7 @@ internal fun DashboardErrorView(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurface
             )
             Button(onClick = onRetry) {
                 Text(text = "Reintentar")
