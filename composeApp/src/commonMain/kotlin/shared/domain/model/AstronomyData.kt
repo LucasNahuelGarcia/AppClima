@@ -6,5 +6,6 @@ data class AstronomyData(
     val explanation: String,
     val mediaType: String,
     val url: String,
-    val hdUrl: String?
+    val hdUrl: String?,
+    val moonPhase: MoonPhaseData = MoonPhaseData.Unknown
 )

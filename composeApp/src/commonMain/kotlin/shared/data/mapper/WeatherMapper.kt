@@ -10,6 +10,7 @@ fun OpenMeteoWeatherDto.toDomainModel(): WeatherData {
         temperatureCelsius = current.temperatureCelsius,
         windSpeedKmh = current.windSpeedKmh,
         weatherCode = current.weatherCode,
-        timeIso = current.time
+        timeIso = current.time,
+        formattedDate = current.time
     )
 }

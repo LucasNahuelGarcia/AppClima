@@ -1,48 +1,27 @@
 package shared.presentation.screen
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.rounded.Thermostat
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import shared.domain.model.AstronomyData
-import shared.domain.model.DashboardData
-import shared.domain.model.GeoCoordinates
-import shared.domain.model.WeatherData
-import shared.presentation.state.UiState
-import shared.presentation.viewmodel.DashboardViewModel
+import androidx.compose.ui.unit.sp
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import shared.domain.model.*
+import shared.presentation.state.UiState
+import shared.presentation.viewmodel.DashboardViewModel
 
 @Composable
 fun DashboardScreen(
@@ -51,12 +30,18 @@ fun DashboardScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
+    val locationState by viewModel.locationState.collectAsState()
+
+    // TODO: SERVICIO INVENTADO. Conectar a un LocalTime.now() real del sistema o al backend.
+    val isNightTime = remember { true }
 
     LaunchedEffect(coordinates) {
         viewModel.loadDashboard(coordinates)
     }
 
-    MaterialTheme {
+    MaterialTheme(
+        colorScheme = if (isNightTime) darkColorScheme() else lightColorScheme()
+    ) {
         Surface(
             modifier = modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -69,12 +54,14 @@ fun DashboardScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
-                CoordinatesHeader(coordinates)
 
                 when (val uiState = state) {
                     UiState.Loading -> LoadingView()
                     is UiState.Error -> ErrorView(uiState.message) { viewModel.retry() }
-                    is UiState.Success<*> -> DashboardContent(uiState.data as DashboardData)
+                    is UiState.Success<*> -> DashboardContent(
+                        data = uiState.data as DashboardData,
+                        locationState = locationState
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -84,23 +71,25 @@ fun DashboardScreen(
 }
 
 @Composable
-private fun CoordinatesHeader(coordinates: GeoCoordinates) {
-    Row(
+private fun DashboardContent(
+    data: DashboardData,
+    locationState: UiState<LocationData>
+) {
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Icon(
-            imageVector = Icons.Default.LocationOn,
-            contentDescription = "Ubicación",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
+        // Bloque superior: Hero clima animado.
+        HeroWeatherCard(
+            weather = data.weather,
+            locationName = locationState.locationNameOrFallback(data.weather.locationName)
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "${coordinates.latitude}, ${coordinates.longitude}",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+
+        // Bloque intermedio: Pronóstico horizontal.
+        TodayForecastSection(data.weather.hourlyForecast)
+
+        // Bloque inferior: Tarjeta lunar.
+        MoonPhaseCard(data.astronomy.moonPhase)
     }
 }
 
@@ -110,11 +99,15 @@ private fun LoadingView() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 48.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         CircularProgressIndicator()
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Consultando satélites...", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = "Consultando satélites...",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -142,119 +135,185 @@ private fun ErrorView(message: String, onRetry: () -> Unit) {
 }
 
 @Composable
-private fun DashboardContent(data: DashboardData) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-        WeatherCard(data.weather)
-        if (data.astronomy.mediaType == "image") {
-            AstronomyCard(data.astronomy)
-        }
-    }
-}
-
-@Composable
-private fun WeatherCard(weather: WeatherData) {
+private fun HeroWeatherCard(
+    weather: WeatherData,
+    locationName: String
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+        )
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Clima Actual", style = MaterialTheme.typography.titleMedium)
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            // Columna Izquierda: Textos.
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // <Ubicación actual> - <fecha/hora>
+                Text(
+                    text = "$locationName  •  ${weather.formattedDate}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // <(Grande) Temperatura>
                 Text(
                     text = "${weather.temperatureCelsius}°",
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = 68.sp,
+                        fontWeight = FontWeight.Black
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+
+                // <(pequeño con icono) Viento>
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Air,
+                        contentDescription = "Velocidad del viento",
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "${weather.windSpeedKmh} km/h",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                WeatherDetailItem(
-                    icon = Icons.Default.Air,
-                    label = "Viento",
-                    value = "${weather.windSpeedKmh} km/h"
-                )
-                WeatherDetailItem(
-                    icon = Icons.Rounded.Thermostat,
-                    label = "Código",
-                    value = weather.weatherCode.toString()
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun WeatherDetailItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Column {
-            Text(text = label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-        }
-    }
-}
-
-@Composable
-private fun AstronomyCard(astronomy: AstronomyData) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            KamelImage(
-                resource = asyncPainterResource(data = astronomy.url),
-                contentDescription = astronomy.title,
-                contentScale = ContentScale.Crop,
+            // Columna Derecha: Espacio reservado para GIF / Secuencia.
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(MaterialTheme.shapes.medium)
+                    .size(110.dp)
+                    .clip(MaterialTheme.shapes.medium),
+                contentAlignment = Alignment.Center
+            ) {
+                KamelImage(
+                    resource = asyncPainterResource(data = weather.weatherAnimUrl),
+                    contentDescription = "Animación del clima en tiempo real",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                    onFailure = {
+                        // Fallback visual si el backend aún no manda el GIF.
+                        Text("GIF Clima", style = MaterialTheme.typography.labelSmall)
+                    }
+                )
+            }
+        }
+    }
+}
+
+private fun UiState<LocationData>.locationNameOrFallback(fallback: String): String {
+    return when (this) {
+        UiState.Loading -> "Resolviendo ubicación"
+        is UiState.Error -> fallback
+        is UiState.Success -> data.displayName.ifBlank { fallback }
+    }
+}
+
+@Composable
+private fun TodayForecastSection(forecasts: List<HourlyForecast>) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Pronóstico hoy:",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(forecasts) { item ->
+                HourlyCardItem(item)
+            }
+        }
+    }
+}
+
+@Composable
+private fun HourlyCardItem(item: HourlyForecast) {
+    Card(
+        modifier = Modifier.width(72.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text = item.time, style = MaterialTheme.typography.labelSmall)
+
+            KamelImage(
+                resource = asyncPainterResource(data = item.iconUrl),
+                contentDescription = "Clima a las ${item.time}",
+                modifier = Modifier.size(32.dp)
             )
 
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            Text(
+                text = "${item.temperatureCelsius}°",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+private fun MoonPhaseCard(moonPhase: MoonPhaseData) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            KamelImage(
+                resource = asyncPainterResource(data = moonPhase.iconUrl),
+                contentDescription = "Fase de la luna: ${moonPhase.phaseName}",
+                modifier = Modifier.size(54.dp)
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = astronomy.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = astronomy.date,
+                    text = "Fase lunar actual",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = astronomy.explanation,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 4,
-                    overflow = TextOverflow.Ellipsis
+                    text = moonPhase.phaseName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Text(
+                    text = "Iluminación visible: ${moonPhase.illuminationPercent}%",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

@@ -4,14 +4,20 @@ import io.ktor.client.HttpClient
 import org.koin.dsl.module
 import shared.data.datasource.remote.AstronomyRemoteDataSource
 import shared.data.datasource.remote.NasaApodRemoteDataSource
+import shared.data.datasource.remote.NominatimReverseGeocodingRemoteDataSource
 import shared.data.datasource.remote.OpenMeteoWeatherRemoteDataSource
+import shared.data.datasource.remote.ReverseGeocodingRemoteDataSource
 import shared.data.datasource.remote.WeatherRemoteDataSource
 import shared.data.repository.AstronomyRepositoryImpl
+import shared.data.repository.ReverseGeocodingRepositoryImpl
 import shared.data.repository.WeatherRepositoryImpl
 import shared.domain.repository.AstronomyRepository
+import shared.domain.repository.ReverseGeocodingRepository
 import shared.domain.repository.WeatherRepository
 import shared.domain.usecase.GetDashboardDataUseCase
 import shared.domain.usecase.GetDashboardDataUseCaseImpl
+import shared.domain.usecase.GetReverseGeocodingUseCase
+import shared.domain.usecase.GetReverseGeocodingUseCaseImpl
 import shared.presentation.viewmodel.DashboardViewModel
 
 fun appModule(nasaApiKeyProvider: NasaApiKeyProvider) = module {
@@ -20,8 +26,11 @@ fun appModule(nasaApiKeyProvider: NasaApiKeyProvider) = module {
     single<() -> String> { { get<NasaApiKeyProvider>().getKey() } }
     single<WeatherRemoteDataSource> { OpenMeteoWeatherRemoteDataSource(get()) }
     single<AstronomyRemoteDataSource> { NasaApodRemoteDataSource(get(), get()) }
+    single<ReverseGeocodingRemoteDataSource> { NominatimReverseGeocodingRemoteDataSource(get()) }
     single<WeatherRepository> { WeatherRepositoryImpl(get()) }
     single<AstronomyRepository> { AstronomyRepositoryImpl(get()) }
+    single<ReverseGeocodingRepository> { ReverseGeocodingRepositoryImpl(get()) }
     single<GetDashboardDataUseCase> { GetDashboardDataUseCaseImpl(get(), get()) }
-    single { DashboardViewModel(get()) }
+    single<GetReverseGeocodingUseCase> { GetReverseGeocodingUseCaseImpl(get()) }
+    single { DashboardViewModel(get(), get()) }
 }
