@@ -8,6 +8,8 @@ import shared.data.dto.OpenMeteoHourlyDto
 import shared.data.dto.OpenMeteoWeatherDto
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.HourlyForecast
+import shared.domain.model.DayNight
+import shared.domain.model.WeatherCondition
 
 class WeatherMapperTest {
 
@@ -38,12 +40,12 @@ class WeatherMapperTest {
         assertEquals(GeoCoordinates(-38.7167, -62.2833), result.coordinates)
         assertEquals(18.4, result.temperatureCelsius)
         assertEquals(12.5, result.windSpeedKmh)
-        assertEquals(3, result.weatherCode)
-        assertEquals("2026-06-21T12:34:56Z", result.timeIso)
+        assertEquals(WeatherCondition.Cloudy, result.condition)
+        assertEquals(DayNight.Day, result.dayNight)
         assertEquals(
             listOf(
-                HourlyForecast(time = "12:00", temperatureCelsius = 18, weatherCode = 2),
-                HourlyForecast(time = "13:00", temperatureCelsius = 19, weatherCode = 3)
+                HourlyForecast(time = "12:00", temperatureCelsius = 18, condition = WeatherCondition.Cloudy),
+                HourlyForecast(time = "13:00", temperatureCelsius = 19, condition = WeatherCondition.Cloudy)
             ),
             result.hourlyForecast
         )

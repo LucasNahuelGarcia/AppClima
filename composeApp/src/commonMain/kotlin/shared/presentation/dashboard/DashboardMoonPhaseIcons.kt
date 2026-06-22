@@ -14,6 +14,7 @@ import shared.domain.model.MoonPhase
 internal fun dashboardMoonPhaseIconResource(phase: MoonPhase): DrawableResource {
     return when (phase) {
         MoonPhase.Unknown,
+        MoonPhase.NewMoon,
         MoonPhase.FullMoon -> Res.drawable.full_moon_40af26
         MoonPhase.FirstQuarter -> Res.drawable.first_quarter_moon_09ea6a
         MoonPhase.LastQuarter -> Res.drawable.last_quarter_moon_4090c3

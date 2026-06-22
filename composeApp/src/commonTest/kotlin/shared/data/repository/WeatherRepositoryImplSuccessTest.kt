@@ -10,6 +10,8 @@ import shared.data.dto.OpenMeteoHourlyDto
 import shared.data.dto.OpenMeteoWeatherDto
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.HourlyForecast
+import shared.domain.model.DayNight
+import shared.domain.model.WeatherCondition
 import shared.domain.model.WeatherData
 import shared.fake.FakeWeatherRemoteDataSource
 
@@ -47,11 +49,11 @@ class WeatherRepositoryImplSuccessTest {
                 coordinates = coordinates,
                 temperatureCelsius = 18.4,
                 windSpeedKmh = 12.5,
-                weatherCode = 3,
-                timeIso = "2026-06-21T12:34:56Z",
+                condition = WeatherCondition.Cloudy,
+                dayNight = DayNight.Day,
                 hourlyForecast = listOf(
-                    HourlyForecast(time = "12:00", temperatureCelsius = 18, weatherCode = 2),
-                    HourlyForecast(time = "13:00", temperatureCelsius = 19, weatherCode = 3)
+                    HourlyForecast(time = "12:00", temperatureCelsius = 18, condition = WeatherCondition.Cloudy),
+                    HourlyForecast(time = "13:00", temperatureCelsius = 19, condition = WeatherCondition.Cloudy)
                 )
             ),
             result.getOrThrow()

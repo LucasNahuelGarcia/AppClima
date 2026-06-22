@@ -5,12 +5,11 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import org.koin.core.context.startKoin
 import shared.App
-import shared.di.NasaApiKeyProviderImpl
 import shared.di.appModule
 
 fun main() {
     val koin = startKoin {
-        modules(appModule(NasaApiKeyProviderImpl()))
+        modules(appModule())
     }.koin
 
     application {

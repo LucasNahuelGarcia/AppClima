@@ -24,7 +24,7 @@ internal fun DashboardMoonPhaseCard(moonPhase: MoonPhaseData) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
     ) {
         Row(
@@ -42,10 +42,10 @@ internal fun DashboardMoonPhaseCard(moonPhase: MoonPhaseData) {
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
+                Text(   
                     text = "Fase lunar actual",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 Text(
                     text = moonPhase.phase.displayName,
@@ -56,7 +56,7 @@ internal fun DashboardMoonPhaseCard(moonPhase: MoonPhaseData) {
                 Text(
                     text = "Iluminacion visible: ${moonPhase.illuminationPercent}%",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSecondary
                 )
             }
         }

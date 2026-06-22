@@ -4,6 +4,7 @@ enum class MoonPhase(
     val displayName: String
 ) {
     Unknown("Sin datos"),
+    NewMoon("Luna nueva"),
     FullMoon("Luna llena"),
     FirstQuarter("Cuarto creciente"),
     LastQuarter("Cuarto menguante"),
@@ -16,6 +17,7 @@ enum class MoonPhase(
         fun fromBackendValue(value: String): MoonPhase {
             return when (value.normalizedKey()) {
                 "sin_datos", "unknown", "desconocida" -> Unknown
+                "new_moon", "new", "luna_nueva" -> NewMoon
                 "full_moon", "full", "luna_llena", "llena" -> FullMoon
                 "first_quarter", "cuarto_creciente" -> FirstQuarter
                 "last_quarter", "cuarto_menguante" -> LastQuarter

@@ -2,5 +2,6 @@ package shared.domain.model
 
 data class DashboardData(
     val weather: WeatherData,
-    val astronomy: AstronomyData
+    val moonPhase: MoonPhaseData,
+    val airQuality: AirQualityData? = null
 )

@@ -66,7 +66,7 @@ private fun DashboardHourlyCardItem(item: HourlyForecast) {
 
             Box(
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(64.dp)
                     .background(
                         color = MaterialTheme.colorScheme.secondaryContainer,
                         shape = RoundedCornerShape(10.dp)
@@ -76,8 +76,8 @@ private fun DashboardHourlyCardItem(item: HourlyForecast) {
                 Image(
                     painter = painterResource(dashboardHourlyWeatherIconResource(item.condition)),
                     contentDescription = "null",
+                    modifier = Modifier.padding(12.dp),
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(20.dp)
                 )
             }
 

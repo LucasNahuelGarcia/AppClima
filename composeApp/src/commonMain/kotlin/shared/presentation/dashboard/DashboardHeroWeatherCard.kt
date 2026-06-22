@@ -33,9 +33,7 @@ internal fun DashboardHeroWeatherCard(
     locationName: String
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(20.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -62,25 +60,7 @@ internal fun DashboardHeroWeatherCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(
-                            dashboardHeroWeatherIconResource(
-                                condition = weather.condition,
-                                dayNight = weather.dayNight
-                            )
-                        ),
-                        contentDescription = "Estado actual del clima",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+                
             }
 
             Row(
@@ -99,6 +79,26 @@ internal fun DashboardHeroWeatherCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        }
+
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(14.dp))
+                .size(88.dp)
+                .background(MaterialTheme.colorScheme.secondaryContainer),
+            contentAlignment = Alignment.Center,
+            ) {
+            Image(
+                painter = painterResource(
+                    dashboardHeroWeatherIconResource(
+                        condition = weather.condition,
+                        dayNight = weather.dayNight
+                    )
+                ),
+                contentDescription = "Estado actual del clima",
+                modifier = Modifier.padding(12.dp),
+                contentScale = ContentScale.Fit,
+            )
         }
     }
 }

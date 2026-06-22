@@ -1,7 +1,7 @@
 package shared.presentation.dashboard
 
+import shared.domain.model.AirQualityData
 import shared.domain.model.DashboardData
-import shared.domain.model.DayNight
 import shared.domain.model.HourlyForecast
 import shared.domain.model.LocationData
 import shared.domain.model.MoonPhaseData
@@ -24,7 +24,8 @@ internal data class DashboardPresentation(
     val weather: WeatherData,
     val locationName: String,
     val hourlyForecast: List<HourlyForecast>,
-    val moonPhase: MoonPhaseData
+    val moonPhase: MoonPhaseData,
+    val airQuality: AirQualityData? = null
 )
 
 internal fun UiState<DashboardData>.toDashboardUiState(
@@ -40,7 +41,8 @@ internal fun UiState<DashboardData>.toDashboardUiState(
                     weather = weather,
                     locationName = locationState.locationNameOrFallback(weather.locationName),
                     hourlyForecast = weather.hourlyForecast,
-                    moonPhase = data.astronomy.moonPhase
+                    moonPhase = data.moonPhase,
+                    airQuality = data.airQuality
                 )
             )
         }
