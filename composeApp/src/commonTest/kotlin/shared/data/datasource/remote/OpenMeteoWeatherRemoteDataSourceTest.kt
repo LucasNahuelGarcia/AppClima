@@ -21,7 +21,7 @@ class OpenMeteoWeatherRemoteDataSourceTest {
             assertEquals("/v1/forecast", request.url.encodedPath)
             assertEquals(coordinates.latitude.toString(), request.url.parameters["latitude"])
             assertEquals(coordinates.longitude.toString(), request.url.parameters["longitude"])
-            assertEquals("temperature_2m,weather_code,wind_speed_10m", request.url.parameters["current"])
+            assertEquals("temperature_2m,weather_code,wind_speed_10m,is_day", request.url.parameters["current"])
             assertEquals("temperature_2m,weather_code", request.url.parameters["hourly"])
             assertEquals("1", request.url.parameters["forecast_days"])
             assertEquals("UTC", request.url.parameters["timezone"])

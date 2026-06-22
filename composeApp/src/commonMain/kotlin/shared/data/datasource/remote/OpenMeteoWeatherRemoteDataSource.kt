@@ -15,7 +15,7 @@ class OpenMeteoWeatherRemoteDataSource(
         return client.get("https://api.open-meteo.com/v1/forecast") {
             parameter("latitude", coordinates.latitude)
             parameter("longitude", coordinates.longitude)
-            parameter("current", "temperature_2m,weather_code,wind_speed_10m")
+            parameter("current", "temperature_2m,weather_code,wind_speed_10m,is_day")
             parameter("hourly", "temperature_2m,weather_code")
             parameter("forecast_days", 1)
             parameter("timezone", "UTC")
