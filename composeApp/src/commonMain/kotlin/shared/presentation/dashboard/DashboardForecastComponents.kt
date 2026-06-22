@@ -26,7 +26,7 @@ import org.jetbrains.compose.resources.painterResource
 import shared.domain.model.HourlyForecast
 
 @Composable
-internal fun DashboardTodayForecastSection(forecasts: List<HourlyForecast>) {
+internal fun DashboardForecastSection(forecasts: List<HourlyForecast>) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxWidth()
