@@ -3,7 +3,6 @@ package shared.presentation.dashboard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +18,7 @@ import androidx.compose.ui.unit.dp
 internal fun DashboardTemplate(
     uiState: DashboardUiState,
     modifier: Modifier = Modifier,
-    onRetry: () -> Unit
+    onRefresh: () -> Unit
 ) {
     val presentation = (uiState as? DashboardUiState.Content)?.presentation
     val backgroundResource = dashboardBackgroundResource(presentation)
@@ -41,7 +40,7 @@ internal fun DashboardTemplate(
                     viewportHeight = viewportHeight,
                     uiState = uiState,
                     presentation = presentation,
-                    onRetry = onRetry
+                    onRefresh = onRefresh
                 )
             }
 

@@ -48,6 +48,8 @@ fun App(
         is UiState.Success -> DashboardScreen(
             viewModel = dashboardViewModel,
             coordinates = currentLocationState.data,
+            refreshKey = refreshKey,
+            onRefresh = { refreshKey += 1 },
             modifier = modifier
         )
     }

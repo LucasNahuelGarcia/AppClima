@@ -11,6 +11,8 @@ import shared.presentation.viewmodel.DashboardViewModel
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     coordinates: GeoCoordinates,
+    refreshKey: Int,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state = viewModel.uiState.collectAsState().value
@@ -20,8 +22,9 @@ fun DashboardScreen(
         state = state,
         locationState = locationState,
         coordinates = coordinates,
+        refreshKey = refreshKey,
         modifier = modifier,
         onLoadDashboard = viewModel::loadDashboard,
-        onRetry = viewModel::retry
+        onRefresh = onRefresh
     )
 }

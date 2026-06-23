@@ -13,11 +13,12 @@ internal fun DashboardRoute(
     state: UiState<shared.domain.model.DashboardData>,
     locationState: UiState<LocationData>,
     coordinates: GeoCoordinates,
+    refreshKey: Int,
     modifier: Modifier = Modifier,
     onLoadDashboard: (GeoCoordinates) -> Unit,
-    onRetry: () -> Unit
+    onRefresh: () -> Unit
 ) {
-    LaunchedEffect(coordinates) {
+    LaunchedEffect(coordinates, refreshKey) {
         onLoadDashboard(coordinates)
     }
 
@@ -28,7 +29,7 @@ internal fun DashboardRoute(
         DashboardTemplate(
             uiState = dashboardUiState,
             modifier = modifier,
-            onRetry = onRetry
+            onRefresh = onRefresh
         )
     }
 }

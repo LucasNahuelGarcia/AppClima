@@ -73,7 +73,7 @@ internal fun DashboardErrorView(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Button(onClick = onRetry) {
-                Text(text = "Reintentar")
+                Text(text = "Actualizar datos")
             }
         }
     }
