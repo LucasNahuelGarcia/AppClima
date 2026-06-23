@@ -50,4 +50,38 @@ class WeatherMapperTest {
             result.hourlyForecast
         )
     }
+
+    @Test
+    fun should_filter_and_show_hourly_forecast_using_response_timezone() {
+        val dto = OpenMeteoWeatherDto(
+            latitude = -38.7167,
+            longitude = -62.2833,
+            timezone = "America/Argentina/Buenos_Aires",
+            current = OpenMeteoCurrentDto(
+                time = "2026-06-21T09:00",
+                temperatureCelsius = 18.4,
+                windSpeedKmh = 12.5,
+                weatherCode = 3
+            ),
+            hourly = OpenMeteoHourlyDto(
+                time = listOf(
+                    "2026-06-21T08:00",
+                    "2026-06-21T09:00",
+                    "2026-06-21T10:00"
+                ),
+                temperatureCelsius = listOf(17.2, 18.0, 19.1),
+                weatherCode = listOf(1, 2, 3)
+            )
+        )
+
+        val result = dto.toDomainModel { Instant.parse("2026-06-21T12:34:56Z") }
+
+        assertEquals(
+            listOf(
+                HourlyForecast(time = "09:00", temperatureCelsius = 18, condition = WeatherCondition.Cloudy),
+                HourlyForecast(time = "10:00", temperatureCelsius = 19, condition = WeatherCondition.Cloudy)
+            ),
+            result.hourlyForecast
+        )
+    }
 }

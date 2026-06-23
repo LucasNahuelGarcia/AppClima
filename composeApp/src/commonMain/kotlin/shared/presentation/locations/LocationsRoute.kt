@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,11 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
 
 @Composable
 internal fun LocationsRoute(
     locations: List<LocationData>,
+    currentLocationCoordinates: GeoCoordinates?,
     isAddingLocation: Boolean,
     latitudeText: String,
     longitudeText: String,
@@ -44,6 +47,7 @@ internal fun LocationsRoute(
     onLatitudeChange: (String) -> Unit,
     onLongitudeChange: (String) -> Unit,
     onCancelAddLocation: () -> Unit,
+    onRemoveLocation: (GeoCoordinates) -> Unit,
     onSaveLocation: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -67,17 +71,20 @@ internal fun LocationsRoute(
                     Text(
                         text = "Mis Ubicaciones",
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
                 Button(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Volver")
+                    Text(
+                        text = "Volver",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
             }
 
@@ -90,7 +97,8 @@ internal fun LocationsRoute(
                 ) {
                     Text(
                         text = "Aún no hay ubicaciones disponibles",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             } else {
@@ -101,7 +109,11 @@ internal fun LocationsRoute(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(locations) { location ->
-                        LocationCard(location = location)
+                        LocationCard(
+                            location = location,
+                            canRemove = location.coordinates != currentLocationCoordinates,
+                            onRemoveLocation = onRemoveLocation
+                        )
                     }
                 }
             }
@@ -145,7 +157,10 @@ private fun AddLocationSection(
                 contentDescription = null
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Agregar ubicación")
+            Text(
+                text = "Agregar ubicación",
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         }
         return
     }
@@ -221,7 +236,11 @@ private fun AddLocationSection(
 }
 
 @Composable
-private fun LocationCard(location: LocationData) {
+private fun LocationCard(
+    location: LocationData,
+    canRemove: Boolean,
+    onRemoveLocation: (GeoCoordinates) -> Unit
+) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -233,20 +252,44 @@ private fun LocationCard(location: LocationData) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = location.displayName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = location.displayName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.weight(1f)
+                )
+                if (canRemove) {
+                    TextButton(
+                        onClick = { onRemoveLocation(location.coordinates) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Quitar",
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+            }
             Text(
                 text = location.locality,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Text(
                 text = "${location.coordinates.latitude}, ${location.coordinates.longitude}",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }

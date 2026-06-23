@@ -13,8 +13,10 @@ import shared.data.datasource.remote.WeatherRemoteDataSource
 import shared.data.repository.AirQualityRepositoryImpl
 import shared.data.repository.InMemoryLocationsProvider
 import shared.data.repository.DeviceLocationRepositoryImpl
+import shared.data.repository.LocationsStorage
 import shared.data.repository.ReverseGeocodingRepositoryImpl
 import shared.data.repository.WeatherRepositoryImpl
+import shared.data.repository.createLocationsStorage
 import shared.domain.repository.AirQualityRepository
 import shared.domain.repository.DeviceLocationRepository
 import shared.domain.repository.LocationsProvider
@@ -37,7 +39,8 @@ fun appModule() = module {
     single<AirQualityRepository> { AirQualityRepositoryImpl(get()) }
     single<WeatherRepository> { WeatherRepositoryImpl(get()) }
     single<DeviceLocationRepository> { DeviceLocationRepositoryImpl(get()) }
-    single<LocationsProvider> { InMemoryLocationsProvider() }
+    single<LocationsStorage> { createLocationsStorage() }
+    single<LocationsProvider> { InMemoryLocationsProvider(get()) }
     single<ReverseGeocodingRepository> { ReverseGeocodingRepositoryImpl(get()) }
     single<GetDeviceLocationUseCase> { GetDeviceLocationUseCaseImpl(get()) }
     single<GetDashboardDataUseCase> { GetDashboardDataUseCaseImpl(get(), get()) }

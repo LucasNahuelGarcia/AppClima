@@ -65,6 +65,39 @@ class InMemoryLocationsProviderTest {
         assertSame(currentLocation, provider.getCurrentLocation())
     }
 
+    @Test
+    fun should_load_saved_locations_from_storage() {
+        val savedLocation = buildLocation(
+            latitude = -34.6037,
+            longitude = -58.3816,
+            displayName = "Buenos Aires"
+        )
+        val storage = FakeLocationsStorage(initialLocations = listOf(savedLocation))
+
+        val provider = InMemoryLocationsProvider(storage)
+
+        assertEquals(listOf(savedLocation), provider.getLocations())
+    }
+
+    @Test
+    fun should_persist_saved_locations_when_changed() {
+        val storage = FakeLocationsStorage()
+        val provider = InMemoryLocationsProvider(storage)
+        val savedLocation = buildLocation(
+            latitude = -34.6037,
+            longitude = -58.3816,
+            displayName = "Buenos Aires"
+        )
+
+        provider.saveLocation(savedLocation)
+
+        assertEquals(listOf(savedLocation), storage.persistedLocations)
+
+        provider.removeLocation(savedLocation.coordinates)
+
+        assertEquals(emptyList(), storage.persistedLocations)
+    }
+
     private fun buildLocation(
         latitude: Double,
         longitude: Double,
@@ -78,5 +111,19 @@ class InMemoryLocationsProviderTest {
             country = "Argentina",
             countryCode = "AR"
         )
+    }
+
+    private class FakeLocationsStorage(
+        private val initialLocations: List<LocationData> = emptyList()
+    ) : LocationsStorage {
+        var persistedLocations: List<LocationData> = emptyList()
+
+        override fun readSavedLocations(): List<LocationData> {
+            return initialLocations
+        }
+
+        override fun writeSavedLocations(locations: List<LocationData>) {
+            persistedLocations = locations
+        }
     }
 }

@@ -7,13 +7,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class InMemoryLocationsProvider : LocationsProvider {
+class InMemoryLocationsProvider(
+    private val storage: LocationsStorage = NoOpLocationsStorage()
+) : LocationsProvider {
 
     private var currentLocation: LocationData? = null
-    private val savedLocations = mutableListOf<LocationData>()
+    private val savedLocations = storage.readSavedLocations().toMutableList()
     private val _locationsState = MutableStateFlow<List<LocationData>>(emptyList())
 
     override val locationsState: StateFlow<List<LocationData>> = _locationsState.asStateFlow()
+
+    init {
+        publishLocations()
+    }
 
     override fun getLocations(): List<LocationData> {
         return buildLocationsSnapshot()
@@ -38,6 +44,7 @@ class InMemoryLocationsProvider : LocationsProvider {
         }
 
         savedLocations.add(location)
+        persistSavedLocations()
         publishLocations()
     }
 
@@ -47,12 +54,18 @@ class InMemoryLocationsProvider : LocationsProvider {
         }
 
         savedLocations.removeAll { it.coordinates == coordinates }
+        persistSavedLocations()
         publishLocations()
     }
 
     override fun clearSavedLocations() {
         savedLocations.clear()
+        persistSavedLocations()
         publishLocations()
+    }
+
+    private fun persistSavedLocations() {
+        storage.writeSavedLocations(savedLocations)
     }
 
     private fun publishLocations() {

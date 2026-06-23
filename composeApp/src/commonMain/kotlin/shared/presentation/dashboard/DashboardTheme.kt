@@ -13,10 +13,10 @@ private val DashboardDayScheme = lightColorScheme(
     primaryContainer = Color(0xFFD8E7C8),
     onPrimaryContainer = Color(0xFF2B4020),
 
-    secondary = Color(0xFF424B54),
-    onSecondary = Color(0xFFEBF5DF),
-    secondaryContainer = Color(0xFF424B54),
-    onSecondaryContainer = Color(0xFFEBF5DF),
+    secondary = Color(0xFF667460),
+    onSecondary = Color(0xFFC5E2C0),
+    secondaryContainer = Color(0xFF6B7265),
+    onSecondaryContainer = Color(0xFFE5F3D8),
 
     tertiary = Color(0xFF557A3E),
     onTertiary = Color(0xFFEBF5DF),

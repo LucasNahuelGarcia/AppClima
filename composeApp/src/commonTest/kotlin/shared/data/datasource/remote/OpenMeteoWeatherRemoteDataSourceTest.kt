@@ -24,7 +24,7 @@ class OpenMeteoWeatherRemoteDataSourceTest {
             assertEquals("temperature_2m,weather_code,wind_speed_10m,is_day", request.url.parameters["current"])
             assertEquals("temperature_2m,weather_code", request.url.parameters["hourly"])
             assertEquals("1", request.url.parameters["forecast_days"])
-            assertEquals("UTC", request.url.parameters["timezone"])
+            assertEquals("auto", request.url.parameters["timezone"])
 
             respond(
                 content = """

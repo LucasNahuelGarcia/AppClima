@@ -22,6 +22,7 @@ fun LocationsScreen(
     modifier: Modifier = Modifier
 ) {
     val locations = locationsProvider.locationsState.collectAsState().value
+    val currentLocationCoordinates = locationsProvider.getCurrentLocation()?.coordinates
     val scope = rememberCoroutineScope()
     var isAddingLocation by remember { mutableStateOf(false) }
     var latitudeText by remember { mutableStateOf("") }
@@ -38,6 +39,7 @@ fun LocationsScreen(
 
     LocationsRoute(
         locations = locations,
+        currentLocationCoordinates = currentLocationCoordinates,
         isAddingLocation = isAddingLocation,
         latitudeText = latitudeText,
         longitudeText = longitudeText,
@@ -56,6 +58,7 @@ fun LocationsScreen(
             addLocationError = null
         },
         onCancelAddLocation = ::clearAddLocationForm,
+        onRemoveLocation = { locationsProvider.removeLocation(it) },
         onSaveLocation = {
             val latitude = latitudeText.toDoubleOrNull()
             val longitude = longitudeText.toDoubleOrNull()
