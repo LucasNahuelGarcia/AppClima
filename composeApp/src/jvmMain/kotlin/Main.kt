@@ -16,6 +16,7 @@ fun main() {
         Window(
             onCloseRequest = ::exitApplication,
             title = "Dashboard Clima y Astronomía",
+            resizable = false,
             state = rememberWindowState(size = DpSize(450.dp, 844.dp))
         ) {
             App(
