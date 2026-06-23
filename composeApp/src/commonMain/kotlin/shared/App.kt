@@ -1,13 +1,18 @@
 package shared
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -38,38 +43,51 @@ fun App(
             )
     }
 
-    when (val currentLocationState = locationState) {
-        UiState.Loading -> LocationLoadingView(modifier = modifier)
-        is UiState.Error -> LocationErrorView(
-            message = currentLocationState.message,
-            modifier = modifier,
-            onRetry = { refreshKey += 1 }
-        )
-        is UiState.Success -> DashboardScreen(
-            viewModel = dashboardViewModel,
-            coordinates = currentLocationState.data,
-            refreshKey = refreshKey,
-            onRefresh = { refreshKey += 1 },
-            modifier = modifier
-        )
+    Box(modifier = modifier.fillMaxSize()) {
+        when (val currentLocationState = locationState) {
+            UiState.Loading -> Unit
+            is UiState.Error -> LocationErrorView(
+                message = currentLocationState.message,
+                modifier = Modifier.fillMaxSize(),
+                onRetry = { refreshKey += 1 }
+            )
+            is UiState.Success -> DashboardScreen(
+                viewModel = dashboardViewModel,
+                coordinates = currentLocationState.data,
+                refreshKey = refreshKey,
+                onRefresh = { refreshKey += 1 },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        AnimatedVisibility(
+            visible = locationState == UiState.Loading,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            LocationLoadingView(modifier = Modifier.fillMaxSize())
+        }
     }
 }
 
 @Composable
 private fun LocationLoadingView(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        CircularProgressIndicator()
-        Text(
-            text = "Obteniendo ubicacion actual...",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 16.dp)
-        )
+    MaterialTheme(colorScheme = darkColorScheme()) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                text = "Obteniendo ubicacion actual...",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(top = 16.dp),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
     }
 }
 

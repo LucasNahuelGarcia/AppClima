@@ -31,10 +31,9 @@ internal fun DashboardLoadingView() {
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 48.dp),
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.Center
         ) {
             CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
             Text(
@@ -65,7 +64,6 @@ internal fun DashboardErrorView(
                 .fillMaxWidth()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = message,

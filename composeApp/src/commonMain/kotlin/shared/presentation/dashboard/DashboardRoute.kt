@@ -36,8 +36,8 @@ internal fun DashboardRoute(
 
 private fun DashboardUiState.dayNight(): DayNight {
     return when (this) {
-        DashboardUiState.Loading -> DayNight.Day
-        is DashboardUiState.Error -> DayNight.Day
+        DashboardUiState.Loading -> DayNight.Night
+        is DashboardUiState.Error -> DayNight.Night
         is DashboardUiState.Content -> presentation.weather.dayNight
     }
 }

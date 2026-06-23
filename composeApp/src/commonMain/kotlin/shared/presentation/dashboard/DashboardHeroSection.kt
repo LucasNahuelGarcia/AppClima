@@ -42,33 +42,33 @@ internal fun DashboardHeroSection(
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.28f))
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+        if (uiState == DashboardUiState.Loading) {
+            DashboardLoadingView()
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Button(onClick = onRefresh) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = null
-                    )
-                    Text(
-                        text = "Actualizar",
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Button(onClick = onRefresh) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = null
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.weight(1f))
+                DashboardHeroContent(
+                    uiState = uiState,
+                    presentation = presentation,
+                    onRetry = onRefresh
+                )
             }
-            Spacer(modifier = Modifier.weight(1f))
-            DashboardHeroContent(
-                uiState = uiState,
-                presentation = presentation,
-                onRetry = onRefresh
-            )
         }
     }
 }
