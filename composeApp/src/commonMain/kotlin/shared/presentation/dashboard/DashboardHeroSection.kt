@@ -1,5 +1,8 @@
 package shared.presentation.dashboard
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,33 +45,78 @@ internal fun DashboardHeroSection(
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.28f))
         )
 
-        if (uiState == DashboardUiState.Loading) {
-            DashboardLoadingView()
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Button(onClick = onRefresh) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = null
-                        )
+        Crossfade(
+            targetState = uiState,
+            label = "DashboardHeroContent"
+        ) { state ->
+            when (state) {
+                DashboardUiState.Loading -> {
+                    DashboardLoadingView()
+                }
+                is DashboardUiState.Error -> {
+                    DashboardHeroError(
+                        message = state.message,
+                        onRetry = onRefresh
+                    )
+                }
+                is DashboardUiState.Content -> {
+                    if (presentation != null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(start = 16.dp, end = 16.dp, bottom = 24.dp, top = 24.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Button(onClick = onRefresh) {
+                                    Icon(
+                                        imageVector = Icons.Default.Refresh,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.weight(1f))
+                            DashboardHeroContent(
+                                weather = presentation.weather,
+                                locationName = presentation.locationName
+                            )
+                        }
                     }
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                DashboardHeroContent(
-                    uiState = uiState,
-                    presentation = presentation,
-                    onRetry = onRefresh
+            }
+        }
+    }
+}
+
+@Composable
+private fun DashboardHeroError(
+    message: String,
+    onRetry: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Button(onClick = onRetry) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null
                 )
             }
         }
+        Spacer(modifier = Modifier.weight(1f))
+        DashboardErrorView(
+            message = message,
+            onRetry = onRetry
+        )
     }
 }

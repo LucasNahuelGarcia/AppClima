@@ -1,25 +1,22 @@
 package shared.presentation.dashboard
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
 import androidx.compose.runtime.Composable
+import shared.domain.model.WeatherData
 
 @Composable
 internal fun DashboardHeroContent(
-    uiState: DashboardUiState,
-    presentation: DashboardPresentation?,
-    onRetry: () -> Unit
+    weather: WeatherData,
+    locationName: String
 ) {
-    when (uiState) {
-        DashboardUiState.Loading -> DashboardLoadingView()
-        is DashboardUiState.Error -> DashboardErrorView(
-            message = uiState.message,
-            onRetry = onRetry
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn()
+    ) {
+        DashboardHeroWeatherCard(
+            weather = weather,
+            locationName = locationName
         )
-        is DashboardUiState.Content -> {
-            val content = presentation ?: return
-            DashboardHeroWeatherCard(
-                weather = content.weather,
-                locationName = content.locationName
-            )
-        }
     }
 }
