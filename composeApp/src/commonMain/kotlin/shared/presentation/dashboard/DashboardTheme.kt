@@ -35,7 +35,7 @@ private val DashboardDayScheme = lightColorScheme(
 )
 
 private val DashboardNightScheme = darkColorScheme(
-    primary = Color(0xFF557A3E),
+    primary = Color(0xFF88CB6A),
     onPrimary = Color(0xFF0B1005),
     primaryContainer = Color(0xFF2D431E),
     onPrimaryContainer = Color(0xFFE8EBED),

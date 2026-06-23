@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import shared.presentation.screen.DashboardScreen
 import shared.presentation.viewmodel.DashboardViewModel
+import shared.domain.model.DayNight
 import shared.domain.model.GeoCoordinates
 import shared.domain.repository.LocationsProvider
 import shared.domain.usecase.GetDeviceLocationUseCase
@@ -46,9 +47,7 @@ fun App(
 ) {
     var refreshKey by remember { mutableIntStateOf(0) }
     var showLocationsScreen by remember { mutableStateOf(false) }
-    val dashboardState = dashboardViewModel.uiState.collectAsState().value
-    val dashboardLocationState = dashboardViewModel.locationState.collectAsState().value
-    val themeMode = dashboardState.toDashboardUiState(dashboardLocationState).dayNight()
+    var currentDashboardPage by remember { mutableIntStateOf(0) }
     val locationState by produceState<UiState<GeoCoordinates>>(initialValue = UiState.Loading, refreshKey) {
         value = getDeviceLocationUseCase()
             .fold(
@@ -56,6 +55,27 @@ fun App(
                 onFailure = { UiState.Error(it.message ?: "No se pudo obtener la ubicacion del dispositivo") }
             )
     }
+    val dashboardStates = dashboardViewModel.dashboardStates.collectAsState().value
+    val dashboardLocationStates = dashboardViewModel.locationStates.collectAsState().value
+    val locations = locationsProvider.locationsState.collectAsState().value
+    val currentPageCoordinates = when (val currentLocationState = locationState) {
+        UiState.Loading -> null
+        is UiState.Error -> null
+        is UiState.Success -> buildList {
+            add(currentLocationState.data)
+            locations
+                .map { it.coordinates }
+                .filterNot { it == currentLocationState.data }
+                .forEach { add(it) }
+        }.let { pageCoordinates ->
+            pageCoordinates[currentDashboardPage.coerceIn(0, pageCoordinates.lastIndex)]
+        }
+    }
+    val themeMode = currentPageCoordinates?.let {
+        (dashboardStates[it] ?: UiState.Loading)
+            .toDashboardUiState(dashboardLocationStates[it] ?: UiState.Loading)
+            .dayNight()
+    } ?: DayNight.Night
 
     DashboardTheme(themeMode = themeMode) {
         Box(modifier = modifier.fillMaxSize()) {
@@ -80,6 +100,8 @@ fun App(
                             coordinates = currentLocationState.data,
                             locationsProvider = locationsProvider,
                             refreshKey = refreshKey,
+                            initialPage = currentDashboardPage,
+                            onPageChanged = { currentDashboardPage = it },
                             onRefresh = { refreshKey += 1 },
                             onOpenLocationsWindow = { showLocationsScreen = true },
                             modifier = Modifier.fillMaxSize()

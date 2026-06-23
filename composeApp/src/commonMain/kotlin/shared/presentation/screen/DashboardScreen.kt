@@ -2,8 +2,10 @@ package shared.presentation.screen
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -12,6 +14,13 @@ import shared.domain.repository.LocationsProvider
 import shared.presentation.dashboard.DashboardRoute
 import shared.presentation.state.UiState
 import shared.presentation.viewmodel.DashboardViewModel
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.composed
+import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.launch
 
 @Composable
 fun DashboardScreen(
@@ -19,6 +28,8 @@ fun DashboardScreen(
     coordinates: GeoCoordinates,
     locationsProvider: LocationsProvider,
     refreshKey: Int,
+    initialPage: Int,
+    onPageChanged: (Int) -> Unit,
     onRefresh: () -> Unit,
     onOpenLocationsWindow: () -> Unit,
     modifier: Modifier = Modifier
@@ -32,14 +43,28 @@ fun DashboardScreen(
             locations
                 .map { it.coordinates }
                 .filterNot { it == coordinates }
-                .forEach { add(it) }
+            .forEach { add(it) }
         }
     }
-    val pagerState = rememberPagerState(pageCount = { pageCoordinates.size })
+    val pagerState = rememberPagerState(
+        initialPage = initialPage.coerceIn(0, pageCoordinates.lastIndex),
+        pageCount = { pageCoordinates.size }
+    )
+
+    LaunchedEffect(pagerState.currentPage) {
+        onPageChanged(pagerState.currentPage)
+    }
+
+    LaunchedEffect(pageCoordinates.size) {
+        val lastPage = pageCoordinates.lastIndex
+        if (pagerState.currentPage > lastPage) {
+            pagerState.scrollToPage(lastPage)
+        }
+    }
 
     HorizontalPager(
         state = pagerState,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize().enableDesktopDragScroll(pagerState)
     ) { page ->
         val pageLocation = pageCoordinates[page]
 
@@ -60,6 +85,32 @@ fun DashboardScreen(
             },
             onRefresh = onRefresh,
             onOpenLocationsWindow = onOpenLocationsWindow
+        )
+    }
+}
+
+
+fun Modifier.enableDesktopDragScroll(state: PagerState): Modifier = composed {
+    val scope = rememberCoroutineScope()
+
+    val snapToNearestPage: () -> Unit = {
+        scope.launch {
+            state.animateScrollToPage(state.currentPage)
+        }
+    }
+
+    this.pointerInput(state) {
+        detectHorizontalDragGestures(
+            onDragEnd = snapToNearestPage,
+            onDragCancel = snapToNearestPage,
+            onHorizontalDrag = { change, dragAmount ->
+                if (change.type == PointerType.Mouse) {
+                    change.consume()
+                    scope.launch {
+                        state.scrollBy(-dragAmount)
+                    }
+                }
+            }
         )
     }
 }
