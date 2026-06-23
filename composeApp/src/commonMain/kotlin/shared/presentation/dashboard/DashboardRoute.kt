@@ -29,12 +29,14 @@ internal fun DashboardRoute(
 
     val dashboardUiState = state.toDashboardUiState(locationState)
 
-    DashboardTemplate(
-        uiState = dashboardUiState,
-        currentPage = currentPage,
-        pageCount = pageCount,
-        modifier = modifier,
-        onRefresh = onRefresh,
-        onOpenLocationsWindow = onOpenLocationsWindow
-    )
+    DashboardTheme(themeMode = dashboardUiState.dayNight()) {
+        DashboardTemplate(
+            uiState = dashboardUiState,
+            currentPage = currentPage,
+            pageCount = pageCount,
+            modifier = modifier,
+            onRefresh = onRefresh,
+            onOpenLocationsWindow = onOpenLocationsWindow
+        )
+    }
 }
