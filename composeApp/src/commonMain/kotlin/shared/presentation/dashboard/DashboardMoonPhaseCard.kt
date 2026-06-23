@@ -56,7 +56,7 @@ internal fun DashboardMoonPhaseCard(moonPhase: MoonPhaseData) {
                 Text(
                     text = "Iluminacion visible: ${moonPhase.illuminationPercent}%",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondary
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
         }

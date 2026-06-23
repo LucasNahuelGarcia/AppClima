@@ -15,6 +15,10 @@ class ReverseGeocodingRepositoryImpl(
     override suspend fun getLocation(coordinates: GeoCoordinates): Result<LocationData> {
         return try {
             val dto = remoteDataSource.getLocation(coordinates)
+            if (dto.error == "Unable to geocode") {
+                return Result.failure(DomainError.UnableToGeocode)
+            }
+
             Result.success(dto.toDomainModel(coordinates))
         } catch (e: CancellationException) {
             throw e

@@ -20,7 +20,9 @@ fun main() {
         ) {
             App(
                 dashboardViewModel = koin.get(),
-                getDeviceLocationUseCase = koin.get()
+                getDeviceLocationUseCase = koin.get(),
+                getReverseGeocodingUseCase = koin.get(),
+                locationsProvider = koin.get()
             )
         }
     }

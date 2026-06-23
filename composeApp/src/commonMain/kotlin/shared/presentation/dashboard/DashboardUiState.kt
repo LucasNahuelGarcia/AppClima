@@ -2,6 +2,7 @@ package shared.presentation.dashboard
 
 import shared.domain.model.AirQualityData
 import shared.domain.model.DashboardData
+import shared.domain.model.DayNight
 import shared.domain.model.HourlyForecast
 import shared.domain.model.LocationData
 import shared.domain.model.MoonPhaseData
@@ -46,6 +47,14 @@ internal fun UiState<DashboardData>.toDashboardUiState(
                 )
             )
         }
+    }
+}
+
+internal fun DashboardUiState.dayNight(): DayNight {
+    return when (this) {
+        DashboardUiState.Loading -> DayNight.Night
+        is DashboardUiState.Error -> DayNight.Night
+        is DashboardUiState.Content -> presentation.weather.dayNight
     }
 }
 

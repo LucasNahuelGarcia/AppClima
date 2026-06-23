@@ -14,8 +14,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,16 +27,28 @@ import androidx.compose.ui.unit.dp
 import shared.presentation.screen.DashboardScreen
 import shared.presentation.viewmodel.DashboardViewModel
 import shared.domain.model.GeoCoordinates
+import shared.domain.repository.LocationsProvider
 import shared.domain.usecase.GetDeviceLocationUseCase
+import shared.domain.usecase.GetReverseGeocodingUseCase
+import shared.presentation.dashboard.DashboardTheme
+import shared.presentation.dashboard.dayNight
+import shared.presentation.dashboard.toDashboardUiState
+import shared.presentation.screen.LocationsScreen
 import shared.presentation.state.UiState
 
 @Composable
 fun App(
     dashboardViewModel: DashboardViewModel,
     getDeviceLocationUseCase: GetDeviceLocationUseCase,
+    getReverseGeocodingUseCase: GetReverseGeocodingUseCase,
+    locationsProvider: LocationsProvider,
     modifier: Modifier = Modifier
 ) {
     var refreshKey by remember { mutableIntStateOf(0) }
+    var showLocationsScreen by remember { mutableStateOf(false) }
+    val dashboardState = dashboardViewModel.uiState.collectAsState().value
+    val dashboardLocationState = dashboardViewModel.locationState.collectAsState().value
+    val themeMode = dashboardState.toDashboardUiState(dashboardLocationState).dayNight()
     val locationState by produceState<UiState<GeoCoordinates>>(initialValue = UiState.Loading, refreshKey) {
         value = getDeviceLocationUseCase()
             .fold(
@@ -43,29 +57,44 @@ fun App(
             )
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        when (val currentLocationState = locationState) {
-            UiState.Loading -> Unit
-            is UiState.Error -> LocationErrorView(
-                message = currentLocationState.message,
-                modifier = Modifier.fillMaxSize(),
-                onRetry = { refreshKey += 1 }
-            )
-            is UiState.Success -> DashboardScreen(
-                viewModel = dashboardViewModel,
-                coordinates = currentLocationState.data,
-                refreshKey = refreshKey,
-                onRefresh = { refreshKey += 1 },
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+    DashboardTheme(themeMode = themeMode) {
+        Box(modifier = modifier.fillMaxSize()) {
+            when (val currentLocationState = locationState) {
+                UiState.Loading -> Unit
+                is UiState.Error -> LocationErrorView(
+                    message = currentLocationState.message,
+                    modifier = Modifier.fillMaxSize(),
+                    onRetry = { refreshKey += 1 }
+                )
+                is UiState.Success -> {
+                    if (showLocationsScreen) {
+                        LocationsScreen(
+                            locationsProvider = locationsProvider,
+                            getReverseGeocodingUseCase = getReverseGeocodingUseCase,
+                            onBack = { showLocationsScreen = false },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        DashboardScreen(
+                            viewModel = dashboardViewModel,
+                            coordinates = currentLocationState.data,
+                            locationsProvider = locationsProvider,
+                            refreshKey = refreshKey,
+                            onRefresh = { refreshKey += 1 },
+                            onOpenLocationsWindow = { showLocationsScreen = true },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
 
-        AnimatedVisibility(
-            visible = locationState == UiState.Loading,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            LocationLoadingView(modifier = Modifier.fillMaxSize())
+            AnimatedVisibility(
+                visible = locationState == UiState.Loading,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                LocationLoadingView(modifier = Modifier.fillMaxSize())
+            }
         }
     }
 }

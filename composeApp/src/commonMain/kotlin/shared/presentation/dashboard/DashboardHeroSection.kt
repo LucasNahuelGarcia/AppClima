@@ -13,13 +13,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -31,7 +36,10 @@ internal fun DashboardHeroSection(
     viewportHeight: Dp,
     uiState: DashboardUiState,
     presentation: DashboardPresentation?,
-    onRefresh: () -> Unit
+    currentPage: Int,
+    pageCount: Int,
+    onRefresh: () -> Unit,
+    onOpenLocationsWindow: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -69,9 +77,36 @@ internal fun DashboardHeroSection(
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Button(onClick = onRefresh) {
+                                Button(
+                                    onClick = onOpenLocationsWindow,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Home,
+                                        contentDescription = null
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier.weight(1f),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    DashboardPageIndicator(
+                                        currentPage = currentPage,
+                                        pageCount = pageCount
+                                    )
+                                }
+                                Button(
+                                    onClick = onRefresh,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                ) {
                                     Icon(
                                         imageVector = Icons.Default.Refresh,
                                         contentDescription = null
@@ -92,6 +127,36 @@ internal fun DashboardHeroSection(
 }
 
 @Composable
+private fun DashboardPageIndicator(
+    currentPage: Int,
+    pageCount: Int
+) {
+    if (pageCount <= 1) {
+        return
+    }
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(pageCount) { index ->
+            Box(
+                modifier = Modifier
+                    .size(if (index == currentPage) 10.dp else 7.dp)
+                    .background(
+                        color = if (index == currentPage) {
+                            MaterialTheme.colorScheme.onSecondaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.42f)
+                        },
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
+
+@Composable
 private fun DashboardHeroError(
     message: String,
     onRetry: () -> Unit
@@ -106,7 +171,13 @@ private fun DashboardHeroError(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            Button(onClick = onRetry) {
+            Button(
+                onClick = onRetry,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null

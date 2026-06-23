@@ -11,17 +11,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun DashboardTemplate(
     uiState: DashboardUiState,
+    currentPage: Int,
+    pageCount: Int,
     modifier: Modifier = Modifier,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onOpenLocationsWindow: () -> Unit
 ) {
     val presentation = (uiState as? DashboardUiState.Content)?.presentation
-    val backgroundResource = dashboardBackgroundResource(presentation)
+    var backgroundResource by remember { mutableStateOf(dashboardBackgroundResource(presentation)) }
+
+    LaunchedEffect(presentation) {
+        if (presentation != null) {
+            backgroundResource = dashboardBackgroundResource(presentation)
+        }
+    }
 
     BoxWithConstraints(
         modifier = modifier
@@ -40,7 +54,10 @@ internal fun DashboardTemplate(
                     viewportHeight = viewportHeight,
                     uiState = uiState,
                     presentation = presentation,
-                    onRefresh = onRefresh
+                    currentPage = currentPage,
+                    pageCount = pageCount,
+                    onRefresh = onRefresh,
+                    onOpenLocationsWindow = onOpenLocationsWindow
                 )
             }
 

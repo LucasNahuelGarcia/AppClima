@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class NominatimReverseGeocodingDto(
     @SerialName("display_name") val displayName: String? = null,
-    val address: NominatimAddressDto? = null
+    val address: NominatimAddressDto? = null,
+    val error: String? = null
 )
 
 @Serializable

@@ -21,7 +21,7 @@ internal fun DashboardBackground(
         Image(
             painter = painterResource(backgroundResource),
             contentDescription = "Fondo de clima",
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.FillWidth,
             modifier = Modifier.fillMaxSize()
         )
 

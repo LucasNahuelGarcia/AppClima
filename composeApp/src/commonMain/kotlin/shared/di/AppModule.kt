@@ -11,11 +11,13 @@ import shared.data.datasource.remote.OpenMeteoWeatherRemoteDataSource
 import shared.data.datasource.remote.ReverseGeocodingRemoteDataSource
 import shared.data.datasource.remote.WeatherRemoteDataSource
 import shared.data.repository.AirQualityRepositoryImpl
+import shared.data.repository.InMemoryLocationsProvider
 import shared.data.repository.DeviceLocationRepositoryImpl
 import shared.data.repository.ReverseGeocodingRepositoryImpl
 import shared.data.repository.WeatherRepositoryImpl
 import shared.domain.repository.AirQualityRepository
 import shared.domain.repository.DeviceLocationRepository
+import shared.domain.repository.LocationsProvider
 import shared.domain.repository.ReverseGeocodingRepository
 import shared.domain.repository.WeatherRepository
 import shared.domain.usecase.GetDeviceLocationUseCase
@@ -35,9 +37,10 @@ fun appModule() = module {
     single<AirQualityRepository> { AirQualityRepositoryImpl(get()) }
     single<WeatherRepository> { WeatherRepositoryImpl(get()) }
     single<DeviceLocationRepository> { DeviceLocationRepositoryImpl(get()) }
+    single<LocationsProvider> { InMemoryLocationsProvider() }
     single<ReverseGeocodingRepository> { ReverseGeocodingRepositoryImpl(get()) }
     single<GetDeviceLocationUseCase> { GetDeviceLocationUseCaseImpl(get()) }
     single<GetDashboardDataUseCase> { GetDashboardDataUseCaseImpl(get(), get()) }
     single<GetReverseGeocodingUseCase> { GetReverseGeocodingUseCaseImpl(get()) }
-    single { DashboardViewModel(get(), get()) }
+    single { DashboardViewModel(get(), get(), get()) }
 }

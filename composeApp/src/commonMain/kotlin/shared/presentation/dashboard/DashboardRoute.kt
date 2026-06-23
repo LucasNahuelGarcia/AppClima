@@ -5,7 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
-import shared.domain.model.DayNight
 import shared.presentation.state.UiState
 
 @Composable
@@ -14,30 +13,28 @@ internal fun DashboardRoute(
     locationState: UiState<LocationData>,
     coordinates: GeoCoordinates,
     refreshKey: Int,
+    currentPage: Int,
+    pageCount: Int,
+    isCurrentPage: Boolean,
     modifier: Modifier = Modifier,
     onLoadDashboard: (GeoCoordinates) -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onOpenLocationsWindow: () -> Unit
 ) {
-    LaunchedEffect(coordinates, refreshKey) {
-        onLoadDashboard(coordinates)
+    LaunchedEffect(coordinates, refreshKey, isCurrentPage) {
+        if (isCurrentPage) {
+            onLoadDashboard(coordinates)
+        }
     }
 
     val dashboardUiState = state.toDashboardUiState(locationState)
-    val themeMode = dashboardUiState.dayNight()
 
-    DashboardTheme(themeMode = themeMode) {
-        DashboardTemplate(
-            uiState = dashboardUiState,
-            modifier = modifier,
-            onRefresh = onRefresh
-        )
-    }
-}
-
-private fun DashboardUiState.dayNight(): DayNight {
-    return when (this) {
-        DashboardUiState.Loading -> DayNight.Night
-        is DashboardUiState.Error -> DayNight.Night
-        is DashboardUiState.Content -> presentation.weather.dayNight
-    }
+    DashboardTemplate(
+        uiState = dashboardUiState,
+        currentPage = currentPage,
+        pageCount = pageCount,
+        modifier = modifier,
+        onRefresh = onRefresh,
+        onOpenLocationsWindow = onOpenLocationsWindow
+    )
 }
