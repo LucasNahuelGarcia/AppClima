@@ -6,6 +6,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import shared.domain.model.DomainError
+import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
 import shared.fake.FakeAirQualityRemoteDataSource
 
@@ -21,7 +22,8 @@ class AirQualityRepositoryImplErrorTest {
         val result = repository.getAirQuality(coordinates)
 
         assertTrue(result.isFailure)
-        val failure = assertIs<DomainError.AirQualityFetchFailed>(result.exceptionOrNull())
+        val exception = assertIs<DomainException>(result.exceptionOrNull())
+        val failure = assertIs<DomainError.AirQualityFetchFailed>(exception.domainError)
         assertEquals(error, failure.cause)
         assertEquals(1, remote.calls)
         assertEquals(coordinates, remote.lastCoordinates)

@@ -4,6 +4,7 @@ import kotlinx.coroutines.CancellationException
 import shared.data.datasource.remote.ReverseGeocodingRemoteDataSource
 import shared.data.mapper.toDomainModel
 import shared.domain.model.DomainError
+import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
 import shared.domain.repository.ReverseGeocodingRepository
@@ -16,15 +17,14 @@ class ReverseGeocodingRepositoryImpl(
         return try {
             val dto = remoteDataSource.getLocation(coordinates)
             if (dto.error == "Unable to geocode") {
-                return Result.failure(DomainError.UnableToGeocode)
+                return Result.failure(DomainException(DomainError.UnableToGeocode))
             }
 
             Result.success(dto.toDomainModel(coordinates))
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            val error = if (e is DomainError) e else DomainError.ReverseGeocodingFailed(e)
-            Result.failure(error)
+            Result.failure(DomainException(DomainError.ReverseGeocodingFailed(e), e))
         }
     }
 }

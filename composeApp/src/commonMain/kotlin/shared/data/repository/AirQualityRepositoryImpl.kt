@@ -5,6 +5,7 @@ import shared.data.datasource.remote.AirQualityRemoteDataSource
 import shared.data.mapper.toDomainModel
 import shared.domain.model.AirQualityData
 import shared.domain.model.DomainError
+import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
 import shared.domain.repository.AirQualityRepository
 
@@ -19,8 +20,7 @@ class AirQualityRepositoryImpl(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            val error = if (e is DomainError) e else DomainError.AirQualityFetchFailed(e)
-            Result.failure(error)
+            Result.failure(DomainException(DomainError.AirQualityFetchFailed(e), e))
         }
     }
 }

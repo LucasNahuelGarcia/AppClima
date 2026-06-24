@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import shared.domain.model.DashboardData
 import shared.domain.model.DomainError
+import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
 import shared.domain.repository.LocationsProvider
@@ -64,7 +65,10 @@ class DashboardViewModel(
             val result = getDashboardDataUseCase(coordinates)
             val state = result.fold(
                 onSuccess = { UiState.Success(it) },
-                onFailure = { UiState.Error(it.message ?: "Dashboard fetch failed") }
+                onFailure = { throwable ->
+                    val domainError = (throwable as? DomainException)?.domainError
+                    UiState.Error(domainError?.message ?: "Dashboard fetch failed")
+                }
             )
             _uiState.value = state
             _dashboardStates.value = _dashboardStates.value + (coordinates to state)
@@ -98,11 +102,12 @@ class DashboardViewModel(
                     }
                     UiState.Success(it)
                 },
-                onFailure = {
-                    if (it is DomainError.UnableToGeocode) {
+                onFailure = { throwable ->
+                    val domainError = (throwable as? DomainException)?.domainError
+                    if (domainError is DomainError.UnableToGeocode) {
                         removeUnableToGeocodeLocation(coordinates)
                     }
-                    UiState.Error(it.message ?: "Reverse geocoding failed")
+                    UiState.Error(domainError?.message ?: "Reverse geocoding failed")
                 }
             )
             _locationState.value = state
@@ -120,7 +125,7 @@ class DashboardViewModel(
     }
 
     private fun shouldKeepLocationState(state: UiState<LocationData>): Boolean {
-        return state !is UiState.Error || state.message != DomainError.UnableToGeocode.message
+        return state !is UiState.Error || (state.message != DomainError.UnableToGeocode.message)
     }
 
     private fun hasFreshDashboardData(coordinates: GeoCoordinates): Boolean {

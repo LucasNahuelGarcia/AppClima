@@ -3,6 +3,7 @@ package shared.data.repository
 import kotlinx.coroutines.CancellationException
 import shared.data.datasource.remote.DeviceLocationRemoteDataSource
 import shared.domain.model.DomainError
+import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
 import shared.domain.repository.DeviceLocationRepository
 
@@ -22,16 +23,17 @@ class DeviceLocationRepositoryImpl(
                 )
             } else {
                 Result.failure(
-                    DomainError.LocationFetchFailed(
-                        IllegalStateException(dto.message ?: "No se pudo resolver la ubicacion del dispositivo")
+                    DomainException(
+                        DomainError.LocationFetchFailed(
+                            IllegalStateException(dto.message ?: "No se pudo resolver la ubicacion del dispositivo")
+                        )
                     )
                 )
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            val error = if (e is DomainError) e else DomainError.LocationFetchFailed(e)
-            Result.failure(error)
+            Result.failure(DomainException(DomainError.LocationFetchFailed(e), e))
         }
     }
 }

@@ -6,6 +6,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import shared.domain.model.DomainError
+import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
 import shared.fake.FakeReverseGeocodingRemoteDataSource
 
@@ -21,7 +22,8 @@ class ReverseGeocodingRepositoryImplErrorTest {
         val result = repository.getLocation(coordinates)
 
         assertTrue(result.isFailure)
-        val error = assertIs<DomainError.ReverseGeocodingFailed>(result.exceptionOrNull())
+        val exception = assertIs<DomainException>(result.exceptionOrNull())
+        val error = assertIs<DomainError.ReverseGeocodingFailed>(exception.domainError)
         assertEquals(cause, error.cause)
         assertEquals(1, remote.calls)
         assertEquals(coordinates, remote.lastCoordinates)

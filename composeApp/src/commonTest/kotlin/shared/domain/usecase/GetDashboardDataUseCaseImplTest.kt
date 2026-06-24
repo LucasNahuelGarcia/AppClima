@@ -10,6 +10,7 @@ import shared.domain.model.AirQualityData
 import shared.domain.model.AirQualityLevel
 import shared.domain.model.DashboardData
 import shared.domain.model.DomainError
+import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.DayNight
 import shared.domain.model.calculateMoonPhase
@@ -57,29 +58,30 @@ class GetDashboardDataUseCaseImplTest {
         val result = useCase(coordinates)
 
         assertTrue(result.isFailure)
-        val error = assertIs<DomainError.DashboardFetchFailed>(result.exceptionOrNull())
+        val exception = assertIs<DomainException>(result.exceptionOrNull())
+        val error = assertIs<DomainError.DashboardFetchFailed>(exception.domainError)
         assertEquals(weatherError, error.cause)
         assertEquals(1, weatherRepository.calls)
         assertEquals(1, airQualityRepository.calls)
     }
 
     @Test
-    fun should_keep_dashboard_when_air_quality_fails() = runTest {
+    fun should_return_failure_when_air_quality_fails() = runTest {
         val coordinates = GeoCoordinates(latitude = 10.0, longitude = 20.0)
         val now = Instant.parse("2026-06-02T12:00:00Z")
+        val airQualityError = IllegalStateException("air quality failed")
 
         val weather = buildWeather(coordinates)
         val weatherRepository = FakeWeatherRepository(Result.success(weather))
-        val airQualityRepository = FakeAirQualityRepository(Result.failure(IllegalStateException("air quality failed")))
+        val airQualityRepository = FakeAirQualityRepository(Result.failure(airQualityError))
         val useCase = GetDashboardDataUseCaseImpl(weatherRepository, airQualityRepository) { now }
 
         val result = useCase(coordinates)
 
-        assertTrue(result.isSuccess)
-        assertEquals(
-            DashboardData(weather = weather, moonPhase = calculateMoonPhase(now), airQuality = null),
-            result.getOrThrow()
-        )
+        assertTrue(result.isFailure)
+        val exception = assertIs<DomainException>(result.exceptionOrNull())
+        val error = assertIs<DomainError.DashboardFetchFailed>(exception.domainError)
+        assertEquals(airQualityError, error.cause)
         assertEquals(1, weatherRepository.calls)
         assertEquals(1, airQualityRepository.calls)
     }

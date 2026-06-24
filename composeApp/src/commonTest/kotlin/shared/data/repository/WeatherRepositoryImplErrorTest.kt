@@ -6,6 +6,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import shared.domain.model.DomainError
+import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
 import shared.fake.FakeWeatherRemoteDataSource
 
@@ -21,7 +22,8 @@ class WeatherRepositoryImplErrorTest {
         val result = repository.getCurrentWeather(coordinates)
 
         assertTrue(result.isFailure)
-        val failure = assertIs<DomainError.DashboardFetchFailed>(result.exceptionOrNull())
+        val exception = assertIs<DomainException>(result.exceptionOrNull())
+        val failure = assertIs<DomainError.DashboardFetchFailed>(exception.domainError)
         assertEquals(error, failure.cause)
         assertEquals(1, remote.calls)
         assertEquals(coordinates, remote.lastCoordinates)
