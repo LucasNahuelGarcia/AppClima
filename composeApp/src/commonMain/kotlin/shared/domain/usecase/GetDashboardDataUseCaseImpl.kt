@@ -57,14 +57,12 @@ class GetDashboardDataUseCaseImpl(
         )
     }
 
-    // Helper function to await a Deferred<Result<T>> and rethrow any non-CancellationException
     private suspend fun <T> Deferred<Result<T>>.awaitAndPropagateException(): Result<T> {
         return try {
             await()
         } catch (e: CancellationException) {
-            throw e // Re-throw CancellationException
+            throw e
         } catch (e: Exception) {
-            // Re-throw other exceptions to be handled by the caller
             throw e
         }
     }
