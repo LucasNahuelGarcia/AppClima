@@ -12,10 +12,10 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import shared.data.repository.InMemoryLocationsProvider
+import shared.data.repository.DefaultLocationsRepository
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
-import shared.fake.FakeGetReverseGeocodingUseCase
+import shared.fake.FakeResolveLocationUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LocationsViewModelTest {
@@ -64,7 +64,7 @@ class LocationsViewModelTest {
     @Test
     fun should_save_location_when_reverse_geocoding_succeeds() = runTest {
         val location = buildLocation(GeoCoordinates(-38.7, -62.2))
-        val useCase = FakeGetReverseGeocodingUseCase(Result.success(location))
+        val useCase = FakeResolveLocationUseCase(Result.success(location))
         val viewModel = buildViewModel(useCase = useCase)
 
         viewModel.startAddingLocation()
@@ -88,7 +88,7 @@ class LocationsViewModelTest {
     fun should_show_error_when_reverse_geocoding_fails() = runTest {
         val error = IllegalStateException("No se pudo resolver")
         val viewModel = buildViewModel(
-            useCase = FakeGetReverseGeocodingUseCase(Result.failure(error))
+            useCase = FakeResolveLocationUseCase(Result.failure(error))
         )
 
         viewModel.startAddingLocation()
@@ -106,7 +106,7 @@ class LocationsViewModelTest {
 
     @Test
     fun should_remove_location() = runTest {
-        val provider = InMemoryLocationsProvider()
+        val provider = DefaultLocationsRepository()
         val location = buildLocation(GeoCoordinates(-38.7, -62.2))
         provider.saveLocation(location)
         val viewModel = buildViewModel(provider = provider)
@@ -119,14 +119,14 @@ class LocationsViewModelTest {
     }
 
     private fun buildViewModel(
-        provider: InMemoryLocationsProvider = InMemoryLocationsProvider(),
-        useCase: FakeGetReverseGeocodingUseCase = FakeGetReverseGeocodingUseCase(
+        provider: DefaultLocationsRepository = DefaultLocationsRepository(),
+        useCase: FakeResolveLocationUseCase = FakeResolveLocationUseCase(
             Result.success(buildLocation(GeoCoordinates(-38.7, -62.2)))
         )
     ): LocationsViewModel {
         return LocationsViewModel(
-            locationsProvider = provider,
-            getReverseGeocodingUseCase = useCase
+            locationsRepository = provider,
+            resolveLocationUseCase = useCase
         )
     }
 

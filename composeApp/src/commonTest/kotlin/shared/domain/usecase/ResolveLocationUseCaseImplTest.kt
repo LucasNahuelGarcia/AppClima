@@ -8,7 +8,7 @@ import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
 import shared.fake.FakeReverseGeocodingRepository
 
-class GetReverseGeocodingUseCaseImplTest {
+class ResolveLocationUseCaseImplTest {
 
     @Test
     fun should_return_location_from_repository() = runTest {
@@ -22,7 +22,7 @@ class GetReverseGeocodingUseCaseImplTest {
             countryCode = "ar"
         )
         val repository = FakeReverseGeocodingRepository(Result.success(location))
-        val useCase = GetReverseGeocodingUseCaseImpl(repository)
+        val useCase = ResolveLocationUseCaseImpl(repository)
 
         val result = useCase(coordinates)
 
@@ -37,7 +37,7 @@ class GetReverseGeocodingUseCaseImplTest {
         val coordinates = GeoCoordinates(latitude = 10.0, longitude = 20.0)
         val error = IllegalStateException("reverse geocoding failed")
         val repository = FakeReverseGeocodingRepository(Result.failure(error))
-        val useCase = GetReverseGeocodingUseCaseImpl(repository)
+        val useCase = ResolveLocationUseCaseImpl(repository)
 
         val result = useCase(coordinates)
 

@@ -54,7 +54,7 @@ class OpenMeteoWeatherRemoteDataSourceTest {
         }
 
         val dataSource = OpenMeteoWeatherRemoteDataSource(client)
-        val result = dataSource.getCurrentWeather(coordinates)
+        val result = dataSource.getWeather(coordinates)
 
         assertEquals(-38.7167, result.latitude)
         assertEquals(-62.2833, result.longitude)

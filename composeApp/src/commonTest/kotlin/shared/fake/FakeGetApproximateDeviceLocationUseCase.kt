@@ -1,11 +1,11 @@
 package shared.fake
 
 import shared.domain.model.GeoCoordinates
-import shared.domain.usecase.GetDeviceLocationUseCase
+import shared.domain.usecase.GetApproximateDeviceLocationUseCase
 
-class FakeGetDeviceLocationUseCase(
+class FakeGetApproximateDeviceLocationUseCase(
     private val results: ArrayDeque<Result<GeoCoordinates>>
-) : GetDeviceLocationUseCase {
+) : GetApproximateDeviceLocationUseCase {
     var calls = 0
 
     constructor(result: Result<GeoCoordinates>) : this(ArrayDeque(listOf(result)))

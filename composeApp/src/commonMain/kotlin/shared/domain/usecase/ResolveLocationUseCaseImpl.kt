@@ -4,9 +4,9 @@ import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
 import shared.domain.repository.ReverseGeocodingRepository
 
-class GetReverseGeocodingUseCaseImpl(
+class ResolveLocationUseCaseImpl(
     private val reverseGeocodingRepository: ReverseGeocodingRepository
-) : GetReverseGeocodingUseCase {
+) : ResolveLocationUseCase {
 
     override suspend fun invoke(coordinates: GeoCoordinates): Result<LocationData> {
         return reverseGeocodingRepository.getLocation(coordinates)

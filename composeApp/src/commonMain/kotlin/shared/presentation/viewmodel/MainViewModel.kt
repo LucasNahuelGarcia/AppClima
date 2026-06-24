@@ -6,25 +6,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import shared.domain.repository.LocationsProvider
-import shared.domain.usecase.GetDeviceLocationUseCase
-import shared.presentation.app.AppUiState
+import shared.domain.repository.LocationsRepository
+import shared.domain.usecase.GetApproximateDeviceLocationUseCase
+import shared.presentation.app.MainUiState
 import shared.presentation.state.UiState
 
-class AppViewModel(
-    private val getDeviceLocationUseCase: GetDeviceLocationUseCase,
-    private val locationsProvider: LocationsProvider
+class MainViewModel(
+    private val getApproximateDeviceLocationUseCase: GetApproximateDeviceLocationUseCase,
+    private val locationsRepository: LocationsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
-        AppUiState(locations = locationsProvider.locationsState.value)
+        MainUiState(locations = locationsRepository.locationsState.value)
     )
-    val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
     init {
         loadCurrentLocation()
         viewModelScope.launch {
-            locationsProvider.locationsState.collect { locations ->
+            locationsRepository.locationsState.collect { locations ->
                 updateState { copy(locations = locations) }
             }
         }
@@ -50,7 +50,7 @@ class AppViewModel(
     private fun loadCurrentLocation() {
         viewModelScope.launch {
             updateState { copy(currentLocationState = UiState.Loading) }
-            val state = getDeviceLocationUseCase().fold(
+            val state = getApproximateDeviceLocationUseCase().fold(
                 onSuccess = { UiState.Success(it) },
                 onFailure = { UiState.Error(it.message ?: "No se pudo obtener la ubicacion del dispositivo") }
             )
@@ -58,7 +58,7 @@ class AppViewModel(
         }
     }
 
-    private fun updateState(update: AppUiState.() -> AppUiState) {
+    private fun updateState(update: MainUiState.() -> MainUiState) {
         _uiState.value = _uiState.value.update()
     }
 }

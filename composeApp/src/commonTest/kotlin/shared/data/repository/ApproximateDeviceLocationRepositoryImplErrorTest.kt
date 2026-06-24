@@ -7,17 +7,17 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import shared.domain.model.DomainError
 import shared.domain.model.DomainException
-import shared.fake.FakeDeviceLocationRemoteDataSource
+import shared.fake.FakeApproximateDeviceLocationRemoteDataSource
 
-class DeviceLocationRepositoryImplErrorTest {
+class ApproximateDeviceLocationRepositoryImplErrorTest {
 
     @Test
     fun should_return_domain_error_when_remote_fails() = runTest {
         val error = IllegalStateException("device location fetch failed")
-        val remote = FakeDeviceLocationRemoteDataSource(exceptionToThrow = error)
-        val repository = DeviceLocationRepositoryImpl(remote)
+        val remote = FakeApproximateDeviceLocationRemoteDataSource(exceptionToThrow = error)
+        val repository = ApproximateDeviceLocationRepositoryImpl(remote)
 
-        val result = repository.getCurrentCoordinates()
+        val result = repository.getApproximateCoordinates()
 
         assertTrue(result.isFailure)
         val exception = assertIs<DomainException>(result.exceptionOrNull())

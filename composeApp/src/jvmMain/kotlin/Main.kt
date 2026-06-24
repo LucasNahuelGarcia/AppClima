@@ -20,7 +20,7 @@ fun main() {
             state = rememberWindowState(size = DpSize(450.dp, 844.dp))
         ) {
             App(
-                appViewModel = koin.get(),
+                mainViewModel = koin.get(),
                 dashboardViewModel = koin.get(),
                 locationsViewModel = koin.get()
             )

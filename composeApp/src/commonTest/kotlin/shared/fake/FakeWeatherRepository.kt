@@ -10,7 +10,7 @@ class FakeWeatherRepository(
     var calls = 0
     var lastCoordinates: GeoCoordinates? = null
 
-    override suspend fun getCurrentWeather(coordinates: GeoCoordinates): Result<WeatherData> {
+    override suspend fun getWeather(coordinates: GeoCoordinates): Result<WeatherData> {
         calls++
         lastCoordinates = coordinates
         return result

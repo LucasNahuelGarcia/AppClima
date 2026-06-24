@@ -2,6 +2,6 @@ package shared.domain.usecase
 
 import shared.domain.model.GeoCoordinates
 
-interface GetDeviceLocationUseCase {
+interface GetApproximateDeviceLocationUseCase {
     suspend operator fun invoke(): Result<GeoCoordinates>
 }

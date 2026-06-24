@@ -7,13 +7,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import shared.domain.model.GeoCoordinates
-import shared.domain.repository.LocationsProvider
-import shared.domain.usecase.GetReverseGeocodingUseCase
+import shared.domain.repository.LocationsRepository
+import shared.domain.usecase.ResolveLocationUseCase
 import shared.presentation.locations.LocationsUiState
 
 class LocationsViewModel(
-    private val locationsProvider: LocationsProvider,
-    private val getReverseGeocodingUseCase: GetReverseGeocodingUseCase
+    private val locationsRepository: LocationsRepository,
+    private val resolveLocationUseCase: ResolveLocationUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(buildUiState())
@@ -21,11 +21,11 @@ class LocationsViewModel(
 
     init {
         viewModelScope.launch {
-            locationsProvider.locationsState.collect { locations ->
+            locationsRepository.locationsState.collect { locations ->
                 updateState {
                     copy(
                         locations = locations,
-                        currentLocationCoordinates = locationsProvider.getCurrentLocation()?.coordinates
+                        currentLocationCoordinates = locationsRepository.getCurrentLocation()?.coordinates
                     )
                 }
             }
@@ -64,7 +64,7 @@ class LocationsViewModel(
     }
 
     fun removeLocation(coordinates: GeoCoordinates) {
-        locationsProvider.removeLocation(coordinates)
+        locationsRepository.removeLocation(coordinates)
     }
 
     fun saveLocation() {
@@ -83,14 +83,14 @@ class LocationsViewModel(
                     addLocationError = null
                 )
             }
-            getReverseGeocodingUseCase(
+            resolveLocationUseCase(
                 GeoCoordinates(
                     latitude = latitude,
                     longitude = longitude
                 )
             ).fold(
                 onSuccess = {
-                    locationsProvider.saveLocation(it)
+                    locationsRepository.saveLocation(it)
                     clearAddLocationForm()
                 },
                 onFailure = {
@@ -118,8 +118,8 @@ class LocationsViewModel(
 
     private fun buildUiState(): LocationsUiState {
         return LocationsUiState(
-            locations = locationsProvider.locationsState.value,
-            currentLocationCoordinates = locationsProvider.getCurrentLocation()?.coordinates
+            locations = locationsRepository.locationsState.value,
+            currentLocationCoordinates = locationsRepository.getCurrentLocation()?.coordinates
         )
     }
 

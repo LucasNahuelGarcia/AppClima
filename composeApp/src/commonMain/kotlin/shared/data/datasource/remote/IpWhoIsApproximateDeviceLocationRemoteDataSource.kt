@@ -5,11 +5,11 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import shared.data.dto.IpWhoIsLocationDto
 
-class IpWhoIsDeviceLocationRemoteDataSource(
+class IpWhoIsApproximateDeviceLocationRemoteDataSource(
     private val client: HttpClient
-) : DeviceLocationRemoteDataSource {
+) : ApproximateDeviceLocationRemoteDataSource {
 
-    override suspend fun getCurrentLocation(): IpWhoIsLocationDto {
+    override suspend fun getApproximateLocation(): IpWhoIsLocationDto {
         return client.get("https://ipwho.is/").body()
     }
 }

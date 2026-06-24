@@ -6,11 +6,11 @@ import kotlin.test.assertSame
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
 
-class InMemoryLocationsProviderTest {
+class DefaultLocationsRepositoryTest {
 
     @Test
     fun should_return_current_location_first_and_keep_saved_locations() {
-        val provider = InMemoryLocationsProvider()
+        val repository = DefaultLocationsRepository()
         val currentLocation = buildLocation(
             latitude = -38.7167,
             longitude = -62.2833,
@@ -22,30 +22,30 @@ class InMemoryLocationsProviderTest {
             displayName = "Buenos Aires"
         )
 
-        provider.setCurrentLocation(currentLocation)
-        provider.saveLocation(savedLocation)
+        repository.setCurrentLocation(currentLocation)
+        repository.saveLocation(savedLocation)
 
-        assertEquals(listOf(currentLocation, savedLocation), provider.getLocations())
+        assertEquals(listOf(currentLocation, savedLocation), repository.getLocations())
     }
 
     @Test
     fun should_not_duplicate_current_location_when_saved() {
-        val provider = InMemoryLocationsProvider()
+        val repository = DefaultLocationsRepository()
         val currentLocation = buildLocation(
             latitude = -38.7167,
             longitude = -62.2833,
             displayName = "Bahia Blanca"
         )
 
-        provider.setCurrentLocation(currentLocation)
-        provider.saveLocation(currentLocation)
+        repository.setCurrentLocation(currentLocation)
+        repository.saveLocation(currentLocation)
 
-        assertEquals(listOf(currentLocation), provider.getLocations())
+        assertEquals(listOf(currentLocation), repository.getLocations())
     }
 
     @Test
     fun should_remove_only_saved_locations() {
-        val provider = InMemoryLocationsProvider()
+        val repository = DefaultLocationsRepository()
         val currentLocation = buildLocation(
             latitude = -38.7167,
             longitude = -62.2833,
@@ -57,12 +57,12 @@ class InMemoryLocationsProviderTest {
             displayName = "Buenos Aires"
         )
 
-        provider.setCurrentLocation(currentLocation)
-        provider.saveLocation(savedLocation)
-        provider.removeLocation(savedLocation.coordinates)
+        repository.setCurrentLocation(currentLocation)
+        repository.saveLocation(savedLocation)
+        repository.removeLocation(savedLocation.coordinates)
 
-        assertEquals(listOf(currentLocation), provider.getLocations())
-        assertSame(currentLocation, provider.getCurrentLocation())
+        assertEquals(listOf(currentLocation), repository.getLocations())
+        assertSame(currentLocation, repository.getCurrentLocation())
     }
 
     @Test
@@ -74,26 +74,26 @@ class InMemoryLocationsProviderTest {
         )
         val storage = FakeLocationsStorage(initialLocations = listOf(savedLocation))
 
-        val provider = InMemoryLocationsProvider(storage)
+        val repository = DefaultLocationsRepository(storage)
 
-        assertEquals(listOf(savedLocation), provider.getLocations())
+        assertEquals(listOf(savedLocation), repository.getLocations())
     }
 
     @Test
     fun should_persist_saved_locations_when_changed() {
         val storage = FakeLocationsStorage()
-        val provider = InMemoryLocationsProvider(storage)
+        val repository = DefaultLocationsRepository(storage)
         val savedLocation = buildLocation(
             latitude = -34.6037,
             longitude = -58.3816,
             displayName = "Buenos Aires"
         )
 
-        provider.saveLocation(savedLocation)
+        repository.saveLocation(savedLocation)
 
         assertEquals(listOf(savedLocation), storage.persistedLocations)
 
-        provider.removeLocation(savedLocation.coordinates)
+        repository.removeLocation(savedLocation.coordinates)
 
         assertEquals(emptyList(), storage.persistedLocations)
     }

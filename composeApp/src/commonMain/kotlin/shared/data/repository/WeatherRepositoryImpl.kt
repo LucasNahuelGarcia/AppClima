@@ -16,9 +16,9 @@ class WeatherRepositoryImpl(
     private val nowProvider: () -> Instant = { Clock.System.now() }
 ) : WeatherRepository {
 
-    override suspend fun getCurrentWeather(coordinates: GeoCoordinates): Result<WeatherData> {
+    override suspend fun getWeather(coordinates: GeoCoordinates): Result<WeatherData> {
         return try {
-            val dto = remoteDataSource.getCurrentWeather(coordinates)
+            val dto = remoteDataSource.getWeather(coordinates)
             Result.success(dto.toDomainModel(nowProvider))
         } catch (e: CancellationException) {
             throw e

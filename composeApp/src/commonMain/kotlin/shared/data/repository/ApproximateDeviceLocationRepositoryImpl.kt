@@ -1,19 +1,19 @@
 package shared.data.repository
 
 import kotlinx.coroutines.CancellationException
-import shared.data.datasource.remote.DeviceLocationRemoteDataSource
+import shared.data.datasource.remote.ApproximateDeviceLocationRemoteDataSource
 import shared.domain.model.DomainError
 import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
-import shared.domain.repository.DeviceLocationRepository
+import shared.domain.repository.ApproximateDeviceLocationRepository
 
-class DeviceLocationRepositoryImpl(
-    private val remoteDataSource: DeviceLocationRemoteDataSource
-) : DeviceLocationRepository {
+class ApproximateDeviceLocationRepositoryImpl(
+    private val remoteDataSource: ApproximateDeviceLocationRemoteDataSource
+) : ApproximateDeviceLocationRepository {
 
-    override suspend fun getCurrentCoordinates(): Result<GeoCoordinates> {
+    override suspend fun getApproximateCoordinates(): Result<GeoCoordinates> {
         return try {
-            val dto = remoteDataSource.getCurrentLocation()
+            val dto = remoteDataSource.getApproximateLocation()
             if (dto.success && dto.latitude != null && dto.longitude != null) {
                 Result.success(
                     GeoCoordinates(

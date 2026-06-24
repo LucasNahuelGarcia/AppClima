@@ -4,7 +4,7 @@ import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
 import shared.presentation.state.UiState
 
-data class AppUiState(
+data class MainUiState(
     val currentLocationState: UiState<GeoCoordinates> = UiState.Loading,
     val locations: List<LocationData> = emptyList(),
     val refreshKey: Int = 0,

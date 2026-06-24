@@ -8,7 +8,7 @@ import shared.domain.model.LocationData
 import shared.presentation.state.UiState
 
 @Composable
-internal fun DashboardRoute(
+internal fun DashboardContent(
     state: UiState<shared.domain.model.DashboardData>,
     locationState: UiState<LocationData>,
     coordinates: GeoCoordinates,
@@ -30,7 +30,7 @@ internal fun DashboardRoute(
     val dashboardUiState = state.toDashboardUiState(locationState)
 
     DashboardTheme(themeMode = dashboardUiState.dayNight()) {
-        DashboardTemplate(
+        DashboardLayout(
             uiState = dashboardUiState,
             currentPage = currentPage,
             pageCount = pageCount,

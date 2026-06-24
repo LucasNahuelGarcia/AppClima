@@ -2,11 +2,11 @@ package shared.fake
 
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
-import shared.domain.usecase.GetReverseGeocodingUseCase
+import shared.domain.usecase.ResolveLocationUseCase
 
-class FakeGetReverseGeocodingUseCase(
+class FakeResolveLocationUseCase(
     private val result: Result<LocationData>
-) : GetReverseGeocodingUseCase {
+) : ResolveLocationUseCase {
     var calls = 0
     var lastCoordinates: GeoCoordinates? = null
 

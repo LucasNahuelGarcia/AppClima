@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun DashboardTemplate(
+internal fun DashboardLayout(
     uiState: DashboardUiState,
     currentPage: Int,
     pageCount: Int,

@@ -11,7 +11,7 @@ class FakeWeatherRemoteDataSource(
     var calls = 0
     var lastCoordinates: GeoCoordinates? = null
 
-    override suspend fun getCurrentWeather(coordinates: GeoCoordinates): OpenMeteoWeatherDto {
+    override suspend fun getWeather(coordinates: GeoCoordinates): OpenMeteoWeatherDto {
         calls++
         lastCoordinates = coordinates
         exceptionToThrow?.let { throw it }

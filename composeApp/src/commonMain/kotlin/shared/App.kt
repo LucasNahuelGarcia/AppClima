@@ -22,34 +22,34 @@ import shared.domain.model.DayNight
 import shared.presentation.dashboard.DashboardTheme
 import shared.presentation.dashboard.dayNight
 import shared.presentation.dashboard.toDashboardUiState
-import shared.presentation.screen.DashboardScreen
+import shared.presentation.screen.DashboardRoute
 import shared.presentation.screen.LocationsScreen
 import shared.presentation.state.UiState
-import shared.presentation.viewmodel.AppViewModel
+import shared.presentation.viewmodel.MainViewModel
 import shared.presentation.viewmodel.DashboardViewModel
 import shared.presentation.viewmodel.LocationsViewModel
 
 @Composable
 fun App(
-    appViewModel: AppViewModel,
+    mainViewModel: MainViewModel,
     dashboardViewModel: DashboardViewModel,
     locationsViewModel: LocationsViewModel,
     modifier: Modifier = Modifier
 ) {
-    val appState = appViewModel.uiState.collectAsState().value
+    val mainState = mainViewModel.uiState.collectAsState().value
     val dashboardStates = dashboardViewModel.dashboardStates.collectAsState().value
     val dashboardLocationStates = dashboardViewModel.locationStates.collectAsState().value
-    val currentPageCoordinates = when (val currentLocationState = appState.currentLocationState) {
+    val currentPageCoordinates = when (val currentLocationState = mainState.currentLocationState) {
         UiState.Loading -> null
         is UiState.Error -> null
         is UiState.Success -> buildList {
             add(currentLocationState.data)
-            appState.locations
+            mainState.locations
                 .map { it.coordinates }
                 .filterNot { it == currentLocationState.data }
                 .forEach { add(it) }
         }.let { pageCoordinates ->
-            pageCoordinates[appState.currentDashboardPage.coerceIn(0, pageCoordinates.lastIndex)]
+            pageCoordinates[mainState.currentDashboardPage.coerceIn(0, pageCoordinates.lastIndex)]
         }
     }
     val themeMode = currentPageCoordinates?.let {
@@ -60,30 +60,30 @@ fun App(
 
     DashboardTheme(themeMode = themeMode) {
         Box(modifier = modifier.fillMaxSize()) {
-            when (val currentLocationState = appState.currentLocationState) {
+            when (val currentLocationState = mainState.currentLocationState) {
                 UiState.Loading -> Unit
                 is UiState.Error -> LocationErrorView(
                     message = currentLocationState.message,
                     modifier = Modifier.fillMaxSize(),
-                    onRetry = appViewModel::refresh
+                    onRetry = mainViewModel::refresh
                 )
                 is UiState.Success -> {
-                    if (appState.showLocationsScreen) {
+                    if (mainState.showLocationsScreen) {
                         LocationsScreen(
                             viewModel = locationsViewModel,
-                            onBack = appViewModel::closeLocationsScreen,
+                            onBack = mainViewModel::closeLocationsScreen,
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
-                        DashboardScreen(
+                        DashboardRoute(
                             viewModel = dashboardViewModel,
                             coordinates = currentLocationState.data,
-                            locations = appState.locations,
-                            refreshKey = appState.refreshKey,
-                            initialPage = appState.currentDashboardPage,
-                            onPageChanged = appViewModel::onDashboardPageChanged,
-                            onRefresh = appViewModel::refresh,
-                            onOpenLocationsWindow = appViewModel::openLocationsScreen,
+                            locations = mainState.locations,
+                            refreshKey = mainState.refreshKey,
+                            initialPage = mainState.currentDashboardPage,
+                            onPageChanged = mainViewModel::onDashboardPageChanged,
+                            onRefresh = mainViewModel::refresh,
+                            onOpenLocationsWindow = mainViewModel::openLocationsScreen,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -91,7 +91,7 @@ fun App(
             }
 
             AnimatedVisibility(
-                visible = appState.currentLocationState == UiState.Loading,
+                visible = mainState.currentLocationState == UiState.Loading,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {

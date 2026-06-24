@@ -18,12 +18,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.launch
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
-import shared.presentation.dashboard.DashboardRoute
+import shared.presentation.dashboard.DashboardContent
 import shared.presentation.state.UiState
 import shared.presentation.viewmodel.DashboardViewModel
 
 @Composable
-fun DashboardScreen(
+fun DashboardRoute(
     viewModel: DashboardViewModel,
     coordinates: GeoCoordinates,
     locations: List<LocationData>,
@@ -67,7 +67,7 @@ fun DashboardScreen(
     ) { page ->
         val pageLocation = pageCoordinates[page]
 
-        DashboardRoute(
+        DashboardContent(
             state = dashboardStates[pageLocation] ?: UiState.Loading,
             locationState = locationStates[pageLocation] ?: UiState.Loading,
             coordinates = pageLocation,

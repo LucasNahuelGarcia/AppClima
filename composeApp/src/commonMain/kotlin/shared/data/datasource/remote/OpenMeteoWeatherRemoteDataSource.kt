@@ -11,7 +11,7 @@ class OpenMeteoWeatherRemoteDataSource(
     private val client: HttpClient
 ) : WeatherRemoteDataSource {
 
-    override suspend fun getCurrentWeather(coordinates: GeoCoordinates): OpenMeteoWeatherDto {
+    override suspend fun getWeather(coordinates: GeoCoordinates): OpenMeteoWeatherDto {
         return client.get("https://api.open-meteo.com/v1/forecast") {
             parameter("latitude", coordinates.latitude)
             parameter("longitude", coordinates.longitude)

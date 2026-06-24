@@ -2,14 +2,14 @@ package shared.data.repository
 
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
-import shared.domain.repository.LocationsProvider
+import shared.domain.repository.LocationsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class InMemoryLocationsProvider(
+class DefaultLocationsRepository(
     private val storage: LocationsStorage = NoOpLocationsStorage()
-) : LocationsProvider {
+) : LocationsRepository {
 
     private var currentLocation: LocationData? = null
     private val savedLocations = storage.readSavedLocations().toMutableList()

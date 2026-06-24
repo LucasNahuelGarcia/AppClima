@@ -13,14 +13,14 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import shared.data.repository.InMemoryLocationsProvider
+import shared.data.repository.DefaultLocationsRepository
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
-import shared.fake.FakeGetDeviceLocationUseCase
+import shared.fake.FakeGetApproximateDeviceLocationUseCase
 import shared.presentation.state.UiState
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AppViewModelTest {
+class MainViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
 
@@ -37,8 +37,8 @@ class AppViewModelTest {
     @Test
     fun should_load_current_location_on_init() = runTest {
         val coordinates = GeoCoordinates(-38.7, -62.2)
-        val useCase = FakeGetDeviceLocationUseCase(Result.success(coordinates))
-        val viewModel = AppViewModel(useCase, InMemoryLocationsProvider())
+        val useCase = FakeGetApproximateDeviceLocationUseCase(Result.success(coordinates))
+        val viewModel = MainViewModel(useCase, DefaultLocationsRepository())
 
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -49,11 +49,11 @@ class AppViewModelTest {
 
     @Test
     fun should_show_error_when_current_location_fails() = runTest {
-        val viewModel = AppViewModel(
-            getDeviceLocationUseCase = FakeGetDeviceLocationUseCase(
+        val viewModel = MainViewModel(
+            getApproximateDeviceLocationUseCase = FakeGetApproximateDeviceLocationUseCase(
                 Result.failure(IllegalStateException("location failed"))
             ),
-            locationsProvider = InMemoryLocationsProvider()
+            locationsRepository = DefaultLocationsRepository()
         )
 
         dispatcher.scheduler.advanceUntilIdle()
@@ -66,7 +66,7 @@ class AppViewModelTest {
     fun should_refresh_current_location_and_increment_refresh_key() = runTest {
         val firstCoordinates = GeoCoordinates(-38.7, -62.2)
         val secondCoordinates = GeoCoordinates(-34.6, -58.4)
-        val useCase = FakeGetDeviceLocationUseCase(
+        val useCase = FakeGetApproximateDeviceLocationUseCase(
             ArrayDeque(
                 listOf(
                     Result.success(firstCoordinates),
@@ -74,7 +74,7 @@ class AppViewModelTest {
                 )
             )
         )
-        val viewModel = AppViewModel(useCase, InMemoryLocationsProvider())
+        val viewModel = MainViewModel(useCase, DefaultLocationsRepository())
         dispatcher.scheduler.advanceUntilIdle()
 
         viewModel.refresh()
@@ -88,9 +88,9 @@ class AppViewModelTest {
 
     @Test
     fun should_toggle_locations_screen_and_track_dashboard_page() = runTest {
-        val viewModel = AppViewModel(
-            FakeGetDeviceLocationUseCase(Result.success(GeoCoordinates(-38.7, -62.2))),
-            InMemoryLocationsProvider()
+        val viewModel = MainViewModel(
+            FakeGetApproximateDeviceLocationUseCase(Result.success(GeoCoordinates(-38.7, -62.2))),
+            DefaultLocationsRepository()
         )
 
         viewModel.openLocationsScreen()
@@ -103,10 +103,10 @@ class AppViewModelTest {
     }
 
     @Test
-    fun should_publish_locations_from_provider() = runTest {
-        val provider = InMemoryLocationsProvider()
-        val viewModel = AppViewModel(
-            FakeGetDeviceLocationUseCase(Result.success(GeoCoordinates(-38.7, -62.2))),
+    fun should_publish_locations_from_repository() = runTest {
+        val provider = DefaultLocationsRepository()
+        val viewModel = MainViewModel(
+            FakeGetApproximateDeviceLocationUseCase(Result.success(GeoCoordinates(-38.7, -62.2))),
             provider
         )
         val location = buildLocation(GeoCoordinates(-34.6, -58.4))

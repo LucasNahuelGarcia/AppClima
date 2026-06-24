@@ -41,7 +41,7 @@ class WeatherRepositoryImplSuccessTest {
         val remote = FakeWeatherRemoteDataSource(dtoToReturn = dto)
         val repository = WeatherRepositoryImpl(remote) { Instant.parse("2026-06-21T12:34:56Z") }
 
-        val result = repository.getCurrentWeather(coordinates)
+        val result = repository.getWeather(coordinates)
 
         assertTrue(result.isSuccess)
         assertEquals(

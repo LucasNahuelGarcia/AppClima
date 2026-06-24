@@ -19,7 +19,7 @@ class WeatherRepositoryImplErrorTest {
         val remote = FakeWeatherRemoteDataSource(exceptionToThrow = error)
         val repository = WeatherRepositoryImpl(remote)
 
-        val result = repository.getCurrentWeather(coordinates)
+        val result = repository.getWeather(coordinates)
 
         assertTrue(result.isFailure)
         val exception = assertIs<DomainException>(result.exceptionOrNull())

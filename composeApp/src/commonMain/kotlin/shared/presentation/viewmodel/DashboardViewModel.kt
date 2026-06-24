@@ -12,15 +12,15 @@ import shared.domain.model.DomainError
 import shared.domain.model.DomainException
 import shared.domain.model.GeoCoordinates
 import shared.domain.model.LocationData
-import shared.domain.repository.LocationsProvider
+import shared.domain.repository.LocationsRepository
 import shared.domain.usecase.GetDashboardDataUseCase
-import shared.domain.usecase.GetReverseGeocodingUseCase
+import shared.domain.usecase.ResolveLocationUseCase
 import shared.presentation.state.UiState
 
 class DashboardViewModel(
     private val getDashboardDataUseCase: GetDashboardDataUseCase,
-    private val getReverseGeocodingUseCase: GetReverseGeocodingUseCase,
-    private val locationsProvider: LocationsProvider
+    private val resolveLocationUseCase: ResolveLocationUseCase,
+    private val locationsRepository: LocationsRepository
 ) : ViewModel() {
 
     private companion object {
@@ -94,11 +94,11 @@ class DashboardViewModel(
         viewModelScope.launch {
             _locationState.value = UiState.Loading
             _locationStates.value = _locationStates.value + (coordinates to UiState.Loading)
-            val result = getReverseGeocodingUseCase(coordinates)
+            val result = resolveLocationUseCase(coordinates)
             val state = result.fold(
                 onSuccess = {
                     if (updateCurrentLocation) {
-                        locationsProvider.setCurrentLocation(it)
+                        locationsRepository.setCurrentLocation(it)
                     }
                     UiState.Success(it)
                 },
@@ -118,7 +118,7 @@ class DashboardViewModel(
     }
 
     private fun removeUnableToGeocodeLocation(coordinates: GeoCoordinates) {
-        locationsProvider.removeLocation(coordinates)
+        locationsRepository.removeLocation(coordinates)
         _dashboardStates.value = _dashboardStates.value - coordinates
         _locationStates.value = _locationStates.value - coordinates
         dashboardLoadedAtMillis.remove(coordinates)

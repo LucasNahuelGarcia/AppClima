@@ -21,7 +21,7 @@ class GetDashboardDataUseCaseImpl(
 ) : GetDashboardDataUseCase {
 
     override suspend fun invoke(coordinates: GeoCoordinates): Result<DashboardData> = supervisorScope {
-        val weatherDeferred = async { weatherRepository.getCurrentWeather(coordinates) }
+        val weatherDeferred = async { weatherRepository.getWeather(coordinates) }
         val airQualityDeferred = async { airQualityRepository.getAirQuality(coordinates) }
 
         val weatherResult = try {
