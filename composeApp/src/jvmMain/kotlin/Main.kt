@@ -20,10 +20,9 @@ fun main() {
             state = rememberWindowState(size = DpSize(450.dp, 844.dp))
         ) {
             App(
+                appViewModel = koin.get(),
                 dashboardViewModel = koin.get(),
-                getDeviceLocationUseCase = koin.get(),
-                getReverseGeocodingUseCase = koin.get(),
-                locationsProvider = koin.get()
+                locationsViewModel = koin.get()
             )
         }
     }

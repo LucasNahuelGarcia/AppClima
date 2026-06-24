@@ -28,7 +28,9 @@ import shared.domain.usecase.GetDashboardDataUseCase
 import shared.domain.usecase.GetDashboardDataUseCaseImpl
 import shared.domain.usecase.GetReverseGeocodingUseCase
 import shared.domain.usecase.GetReverseGeocodingUseCaseImpl
+import shared.presentation.viewmodel.AppViewModel
 import shared.presentation.viewmodel.DashboardViewModel
+import shared.presentation.viewmodel.LocationsViewModel
 
 fun appModule() = module {
     single<HttpClient> { createHttpClient() }
@@ -45,5 +47,7 @@ fun appModule() = module {
     single<GetDeviceLocationUseCase> { GetDeviceLocationUseCaseImpl(get()) }
     single<GetDashboardDataUseCase> { GetDashboardDataUseCaseImpl(get(), get()) }
     single<GetReverseGeocodingUseCase> { GetReverseGeocodingUseCaseImpl(get()) }
+    single { AppViewModel(get(), get()) }
     single { DashboardViewModel(get(), get(), get()) }
+    single { LocationsViewModel(get(), get()) }
 }

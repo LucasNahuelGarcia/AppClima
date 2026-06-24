@@ -1,5 +1,7 @@
 package shared.presentation.screen
 
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -8,25 +10,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import shared.domain.model.GeoCoordinates
-import shared.domain.repository.LocationsProvider
-import shared.presentation.dashboard.DashboardRoute
-import shared.presentation.state.UiState
-import shared.presentation.viewmodel.DashboardViewModel
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.composed
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.launch
+import shared.domain.model.GeoCoordinates
+import shared.domain.model.LocationData
+import shared.presentation.dashboard.DashboardRoute
+import shared.presentation.state.UiState
+import shared.presentation.viewmodel.DashboardViewModel
 
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     coordinates: GeoCoordinates,
-    locationsProvider: LocationsProvider,
+    locations: List<LocationData>,
     refreshKey: Int,
     initialPage: Int,
     onPageChanged: (Int) -> Unit,
@@ -36,14 +36,13 @@ fun DashboardScreen(
 ) {
     val dashboardStates = viewModel.dashboardStates.collectAsState().value
     val locationStates = viewModel.locationStates.collectAsState().value
-    val locations = locationsProvider.locationsState.collectAsState().value
     val pageCoordinates = remember(coordinates, locations) {
         buildList {
             add(coordinates)
             locations
                 .map { it.coordinates }
                 .filterNot { it == coordinates }
-            .forEach { add(it) }
+                .forEach { add(it) }
         }
     }
     val pagerState = rememberPagerState(
@@ -88,7 +87,6 @@ fun DashboardScreen(
         )
     }
 }
-
 
 fun Modifier.enableDesktopDragScroll(state: PagerState): Modifier = composed {
     val scope = rememberCoroutineScope()

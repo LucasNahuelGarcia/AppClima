@@ -15,60 +15,41 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import shared.presentation.screen.DashboardScreen
-import shared.presentation.viewmodel.DashboardViewModel
 import shared.domain.model.DayNight
-import shared.domain.model.GeoCoordinates
-import shared.domain.repository.LocationsProvider
-import shared.domain.usecase.GetDeviceLocationUseCase
-import shared.domain.usecase.GetReverseGeocodingUseCase
 import shared.presentation.dashboard.DashboardTheme
 import shared.presentation.dashboard.dayNight
 import shared.presentation.dashboard.toDashboardUiState
+import shared.presentation.screen.DashboardScreen
 import shared.presentation.screen.LocationsScreen
 import shared.presentation.state.UiState
+import shared.presentation.viewmodel.AppViewModel
+import shared.presentation.viewmodel.DashboardViewModel
+import shared.presentation.viewmodel.LocationsViewModel
 
 @Composable
 fun App(
+    appViewModel: AppViewModel,
     dashboardViewModel: DashboardViewModel,
-    getDeviceLocationUseCase: GetDeviceLocationUseCase,
-    getReverseGeocodingUseCase: GetReverseGeocodingUseCase,
-    locationsProvider: LocationsProvider,
+    locationsViewModel: LocationsViewModel,
     modifier: Modifier = Modifier
 ) {
-    var refreshKey by remember { mutableIntStateOf(0) }
-    var showLocationsScreen by remember { mutableStateOf(false) }
-    var currentDashboardPage by remember { mutableIntStateOf(0) }
-    val locationState by produceState<UiState<GeoCoordinates>>(initialValue = UiState.Loading, refreshKey) {
-        value = getDeviceLocationUseCase()
-            .fold(
-                onSuccess = { UiState.Success(it) },
-                onFailure = { UiState.Error(it.message ?: "No se pudo obtener la ubicacion del dispositivo") }
-            )
-    }
+    val appState = appViewModel.uiState.collectAsState().value
     val dashboardStates = dashboardViewModel.dashboardStates.collectAsState().value
     val dashboardLocationStates = dashboardViewModel.locationStates.collectAsState().value
-    val locations = locationsProvider.locationsState.collectAsState().value
-    val currentPageCoordinates = when (val currentLocationState = locationState) {
+    val currentPageCoordinates = when (val currentLocationState = appState.currentLocationState) {
         UiState.Loading -> null
         is UiState.Error -> null
         is UiState.Success -> buildList {
             add(currentLocationState.data)
-            locations
+            appState.locations
                 .map { it.coordinates }
                 .filterNot { it == currentLocationState.data }
                 .forEach { add(it) }
         }.let { pageCoordinates ->
-            pageCoordinates[currentDashboardPage.coerceIn(0, pageCoordinates.lastIndex)]
+            pageCoordinates[appState.currentDashboardPage.coerceIn(0, pageCoordinates.lastIndex)]
         }
     }
     val themeMode = currentPageCoordinates?.let {
@@ -79,31 +60,30 @@ fun App(
 
     DashboardTheme(themeMode = themeMode) {
         Box(modifier = modifier.fillMaxSize()) {
-            when (val currentLocationState = locationState) {
+            when (val currentLocationState = appState.currentLocationState) {
                 UiState.Loading -> Unit
                 is UiState.Error -> LocationErrorView(
                     message = currentLocationState.message,
                     modifier = Modifier.fillMaxSize(),
-                    onRetry = { refreshKey += 1 }
+                    onRetry = appViewModel::refresh
                 )
                 is UiState.Success -> {
-                    if (showLocationsScreen) {
+                    if (appState.showLocationsScreen) {
                         LocationsScreen(
-                            locationsProvider = locationsProvider,
-                            getReverseGeocodingUseCase = getReverseGeocodingUseCase,
-                            onBack = { showLocationsScreen = false },
+                            viewModel = locationsViewModel,
+                            onBack = appViewModel::closeLocationsScreen,
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
                         DashboardScreen(
                             viewModel = dashboardViewModel,
                             coordinates = currentLocationState.data,
-                            locationsProvider = locationsProvider,
-                            refreshKey = refreshKey,
-                            initialPage = currentDashboardPage,
-                            onPageChanged = { currentDashboardPage = it },
-                            onRefresh = { refreshKey += 1 },
-                            onOpenLocationsWindow = { showLocationsScreen = true },
+                            locations = appState.locations,
+                            refreshKey = appState.refreshKey,
+                            initialPage = appState.currentDashboardPage,
+                            onPageChanged = appViewModel::onDashboardPageChanged,
+                            onRefresh = appViewModel::refresh,
+                            onOpenLocationsWindow = appViewModel::openLocationsScreen,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -111,7 +91,7 @@ fun App(
             }
 
             AnimatedVisibility(
-                visible = locationState == UiState.Loading,
+                visible = appState.currentLocationState == UiState.Loading,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
